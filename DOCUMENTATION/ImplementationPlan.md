@@ -654,13 +654,19 @@ az webapp deployment source config-zip --resource-group PoolTrackerRG --name poo
 
 ### Fase 10: Documentação e Relatório (Semana 4)
 **Tempo estimado**: 4-6 horas
+**Status**: 🔄 EM PROGRESSO
 
-- [ ] Atualizar README.md
-- [ ] Documentar arquitetura
-- [ ] Criar guia de instalação
-- [ ] Documentar endpoints SOAP e REST
+- [x] Atualizar README.md (estado atual, progresso das fases, métricas de testes)
+- [x] Documentar arquitetura (incluído no README com diagramas)
+- [x] Criar guia de instalação (DOCUMENTATION/Installation_Guide.md)
+- [x] Documentar endpoints SOAP e REST (DOCUMENTATION/API_Documentation.md)
 - [ ] Preparar relatório final do TP2
 - [ ] Screenshots e evidências
+
+**Documentação criada**:
+- `DOCUMENTATION/API_Documentation.md`: Documentação completa de todos os endpoints REST e SOAP
+- `DOCUMENTATION/Installation_Guide.md`: Guia passo-a-passo de instalação e configuração
+- `README.md`: Atualizado com estado atual do projeto (Fases 1-8 completas)
 
 ---
 

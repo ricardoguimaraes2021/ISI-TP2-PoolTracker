@@ -97,10 +97,10 @@
 - [ ] Testar todos os endpoints em produção
 
 ### Fase 10: Documentação e Relatório (4-6h)
-- [ ] Atualizar README.md
-- [ ] Documentar arquitetura
-- [ ] Criar guia de instalação
-- [ ] Documentar endpoints SOAP e REST
+- [x] Atualizar README.md
+- [x] Documentar arquitetura (incluído no README)
+- [x] Criar guia de instalação (Installation_Guide.md)
+- [x] Documentar endpoints SOAP e REST (API_Documentation.md)
 - [ ] Preparar relatório final do TP2
 - [ ] Screenshots e evidências
 
