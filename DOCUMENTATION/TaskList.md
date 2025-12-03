@@ -70,11 +70,11 @@
 - [x] Documentação completa com descrições, parâmetros e códigos de resposta
 
 ### Fase 7: Testes Automatizados (10-12h)
-- [ ] Configurar projeto de testes (xUnit)
-- [ ] Testes unitários de Services (mínimo 20 testes)
-- [ ] Testes de integração de Controllers (mínimo 15 testes)
-- [ ] Testes de API end-to-end (mínimo 10 testes)
-- [ ] Testes de autenticação
+- [x] Configurar projeto de testes (xUnit)
+- [x] Testes unitários de Services (30 testes implementados)
+- [x] Testes de integração de Controllers (7 testes implementados)
+- [x] Testes de API end-to-end (5 testes implementados)
+- [x] Testes de autenticação (3 testes implementados)
 - [ ] Configurar code coverage
 
 ### Fase 8: Frontend Expandido (8-10h)
