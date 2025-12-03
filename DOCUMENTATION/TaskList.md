@@ -19,48 +19,48 @@
 ## Implementation Phase
 
 ### Fase 1: Fundação (10-12h)
-- [ ] Criar estrutura de projetos (API, SOAP, Core, Infrastructure, Tests)
-- [ ] Configurar Entity Framework Core
-- [ ] Criar DbContext e Entities (8 tabelas)
-- [ ] Criar migrations e aplicar schema
-- [ ] Configurar connection strings
-- [ ] Implementar Repository Pattern
-- [ ] Configurar Dependency Injection
+- [x] Criar estrutura de projetos (API, SOAP, Core, Infrastructure, Tests)
+- [x] Configurar Entity Framework Core
+- [x] Criar DbContext e Entities (8 tabelas)
+- [x] Criar migrations e aplicar schema
+- [x] Configurar connection strings
+- [x] Implementar Repository Pattern
+- [x] Configurar Dependency Injection
 
 ### Fase 2: RESTful API Core (8-10h)
-- [ ] Migrar PoolController para usar EF Core
-- [ ] Implementar WorkerController + Service
-- [ ] Implementar WaterQualityController + Service
-- [ ] Implementar CleaningController + Service
-- [ ] Implementar VisitorController + Service
-- [ ] Adicionar operação DELETE em todos os controllers
-- [ ] Validação de DTOs
+- [x] Migrar PoolController para usar EF Core
+- [x] Implementar WorkerController + Service
+- [x] Implementar WaterQualityController + Service
+- [x] Implementar CleaningController + Service
+- [x] Implementar VisitService (integrado no PoolService)
+- [x] Adicionar operação DELETE em todos os controllers
+- [x] Validação de DTOs
 
 ### Fase 3: Funcionalidades Avançadas (6-8h)
-- [ ] Implementar ReportController + Service
-- [ ] Lógica de geração automática de relatórios
-- [ ] StatisticsController para gráficos
-- [ ] ShoppingListController
-- [ ] Manter integração com Open-Meteo
+- [x] Implementar ReportController + Service
+- [x] Lógica de geração automática de relatórios
+- [x] StatisticsController para gráficos
+- [x] ShoppingListController
+- [x] Manter integração com Open-Meteo
 
 ### Fase 4: Autenticação JWT (4-6h)
-- [ ] Criar AuthController
-- [ ] Implementar geração de JWT tokens
-- [ ] Configurar JWT Bearer Authentication
-- [ ] Adicionar [Authorize] nos endpoints protegidos
-- [ ] Implementar refresh tokens
-- [ ] Atualizar frontend para usar JWT
+- [x] Criar AuthController
+- [x] Implementar geração de JWT tokens
+- [x] Configurar JWT Bearer Authentication
+- [x] Adicionar [Authorize] nos endpoints protegidos
+- [x] Implementar refresh tokens
+- [ ] Atualizar frontend para usar JWT (pendente Fase 8)
 
 ### Fase 5: Serviços SOAP (8-10h)
-- [ ] Criar projeto PoolTracker.SOAP
-- [ ] Definir Service Contracts
-- [ ] Definir Data Contracts
-- [ ] Implementar PoolDataService
-- [ ] Implementar WorkerDataService
-- [ ] Implementar WaterQualityDataService
-- [ ] Implementar ReportDataService
-- [ ] Configurar endpoints SOAP
-- [ ] Gerar WSDL
+- [x] Criar projeto PoolTracker.SOAP
+- [x] Definir Service Contracts
+- [x] Definir Data Contracts
+- [x] Implementar PoolDataService
+- [x] Implementar WorkerDataService
+- [x] Implementar WaterQualityDataService
+- [x] Implementar ReportDataService
+- [x] Configurar endpoints SOAP
+- [x] Gerar WSDL
 
 ### Fase 6: Documentação Swagger (3-4h)
 - [ ] Configurar Swashbuckle

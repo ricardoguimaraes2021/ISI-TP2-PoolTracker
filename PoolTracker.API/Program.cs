@@ -76,7 +76,7 @@ builder.Services.AddAuthorization();
 
 // Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(PoolTracker.API.Configuration.SwaggerConfiguration.ConfigureSwagger);
 
 
 var app = builder.Build();
