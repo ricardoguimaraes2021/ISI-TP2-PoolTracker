@@ -622,14 +622,23 @@ az webapp deployment source config-zip --resource-group PoolTrackerRG --name poo
 
 ### Fase 8: Frontend Expandido (Semana 4)
 **Tempo estimado**: 8-10 horas
+**Status**: ✅ COMPLETA
 
-- [ ] Migrar componentes Shadcn/ui da versão PHP
-- [ ] Instalar e configurar Recharts
-- [ ] Criar páginas de gestão de trabalhadores
-- [ ] Criar páginas de qualidade da água
-- [ ] Criar dashboard de relatórios com gráficos
-- [ ] Implementar autenticação JWT no frontend
-- [ ] Adicionar React Hot Toast
+- [x] Criar estrutura do projeto React com Vite
+- [x] Instalar e configurar dependências (TailwindCSS, Recharts, Axios, React Router)
+- [x] Criar páginas de gestão de trabalhadores (WorkersPage)
+- [x] Criar páginas de qualidade da água (WaterQualityPage)
+- [x] Criar dashboard de relatórios com gráficos (ReportsPage com Recharts)
+- [x] Implementar autenticação JWT no frontend (serviços de auth e ProtectedRoute)
+- [x] Adicionar React Hot Toast para notificações
+
+**Páginas implementadas**:
+- PublicPage: Página pública com estado da piscina, meteorologia e qualidade da água
+- AdminLogin: Página de login com PIN
+- AdminDashboard: Dashboard principal com controlo de lotação
+- WorkersPage: Gestão completa de trabalhadores
+- WaterQualityPage: Registo e visualização de medições
+- ReportsPage: Relatórios e estatísticas com gráficos
 
 ### Fase 9: Deploy na Cloud (Semana 4)
 **Tempo estimado**: 6-8 horas
