@@ -1,0 +1,6 @@
+@PoolTracker.SOAP_HostAddress = http://localhost:5120
+
+GET {{PoolTracker.SOAP_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

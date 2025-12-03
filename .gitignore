@@ -89,3 +89,12 @@ logs/
 # Temporary files
 tmp/
 temp/
+
+# Analysis and documentation files (not code)
+ANALISE_COMPARATIVA.md
+ESTADO_ATUAL.md
+PROGRESSO.md
+
+# Keep appsettings.example.json but ignore actual appsettings.json
+appsettings.json
+!appsettings.example.json
