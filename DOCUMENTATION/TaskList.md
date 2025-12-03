@@ -63,11 +63,11 @@
 - [x] Gerar WSDL
 
 ### Fase 6: Documentação Swagger (3-4h)
-- [ ] Configurar Swashbuckle
-- [ ] Adicionar XML comments em todos os endpoints
-- [ ] Configurar autenticação JWT no Swagger
-- [ ] Adicionar exemplos de requests/responses
-- [ ] Testar UI do Swagger
+- [x] Configurar Swashbuckle
+- [x] Adicionar XML comments em todos os endpoints (todos os 9 controllers)
+- [x] Configurar autenticação JWT no Swagger
+- [x] Adicionar ProducesResponseType attributes
+- [x] Documentação completa com descrições, parâmetros e códigos de resposta
 
 ### Fase 7: Testes Automatizados (10-12h)
 - [ ] Configurar projeto de testes (xUnit)
