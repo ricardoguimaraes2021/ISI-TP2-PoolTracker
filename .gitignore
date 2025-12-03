@@ -13,6 +13,10 @@ nupkg/
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# Guias de execução local (apenas para uso pessoal)
+GUIA_EXECUCAO_LOCAL.md
+README_EXECUCAO.md
+
 # User-specific files
 *.rsuser
 *.suo
