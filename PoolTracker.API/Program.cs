@@ -7,117 +7,125 @@ using PoolTracker.Core.Interfaces;
 using PoolTracker.Core.Entities;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace PoolTracker.API;
 
-// Add services to the container
-builder.Services.AddControllers();
-
-// Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Server=localhost;Database=PoolTrackerDB;Trusted_Connection=true;TrustServerCertificate=true;";
-
-builder.Services.AddDbContext<PoolTrackerDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
-// Repositories
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-// HttpClient for WeatherService
-builder.Services.AddHttpClient<PoolTracker.API.Services.IWeatherService, PoolTracker.API.Services.WeatherService>();
-
-// Services
-builder.Services.AddScoped<PoolTracker.API.Services.IPoolService, PoolTracker.API.Services.PoolService>();
-builder.Services.AddScoped<PoolTracker.API.Services.IVisitService, PoolTracker.API.Services.VisitService>();
-builder.Services.AddScoped<PoolTracker.API.Services.IWorkerService, PoolTracker.API.Services.WorkerService>();
-builder.Services.AddScoped<PoolTracker.API.Services.IWaterQualityService, PoolTracker.API.Services.WaterQualityService>();
-builder.Services.AddScoped<PoolTracker.API.Services.ICleaningService, PoolTracker.API.Services.CleaningService>();
-builder.Services.AddScoped<PoolTracker.API.Services.IReportService, PoolTracker.API.Services.ReportService>();
-builder.Services.AddScoped<PoolTracker.API.Services.IStatisticsService, PoolTracker.API.Services.StatisticsService>();
-builder.Services.AddScoped<PoolTracker.API.Services.IShoppingService, PoolTracker.API.Services.ShoppingService>();
-builder.Services.AddScoped<PoolTracker.API.Services.IJwtService, PoolTracker.API.Services.JwtService>();
-
-// CORS
-builder.Services.AddCors(options =>
+public partial class Program
 {
-    options.AddPolicy("AllowAll", policy =>
+    public static void Main(string[] args)
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+        var builder = WebApplication.CreateBuilder(args);
 
-// JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLong!";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "PoolTrackerAPI";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "PoolTrackerClients";
+        // Add services to the container
+        builder.Services.AddControllers();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-        ClockSkew = TimeSpan.Zero
-    };
-});
+        // Database
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+            ?? "Server=localhost;Database=PoolTrackerDB;Trusted_Connection=true;TrustServerCertificate=true;";
 
-builder.Services.AddAuthorization();
+        builder.Services.AddDbContext<PoolTrackerDbContext>(options =>
+            options.UseSqlServer(connectionString));
 
-// Swagger/OpenAPI
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(PoolTracker.API.Configuration.SwaggerConfiguration.ConfigureSwagger);
+        // Repositories
+        builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+        // HttpClient for WeatherService
+        builder.Services.AddHttpClient<Services.IWeatherService, Services.WeatherService>();
 
-var app = builder.Build();
+        // Services
+        builder.Services.AddScoped<Services.IPoolService, Services.PoolService>();
+        builder.Services.AddScoped<Services.IVisitService, Services.VisitService>();
+        builder.Services.AddScoped<Services.IWorkerService, Services.WorkerService>();
+        builder.Services.AddScoped<Services.IWaterQualityService, Services.WaterQualityService>();
+        builder.Services.AddScoped<Services.ICleaningService, Services.CleaningService>();
+        builder.Services.AddScoped<Services.IReportService, Services.ReportService>();
+        builder.Services.AddScoped<Services.IStatisticsService, Services.StatisticsService>();
+        builder.Services.AddScoped<Services.IShoppingService, Services.ShoppingService>();
+        builder.Services.AddScoped<Services.IJwtService, Services.JwtService>();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "PoolTracker API v1");
-        options.RoutePrefix = "swagger";
-    });
-}
-
-app.UseHttpsRedirection();
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-// Ensure database is created
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<PoolTrackerDbContext>();
-    dbContext.Database.EnsureCreated();
-    
-    // Seed initial data if needed
-    if (!dbContext.PoolStatus.Any())
-    {
-        dbContext.PoolStatus.Add(new PoolStatus
+        // CORS
+        builder.Services.AddCors(options =>
         {
-            CurrentCount = 0,
-            MaxCapacity = 120,
-            IsOpen = true,
-            LocationName = "Piscina Municipal da Sobreposta",
-            Address = "R. da Piscina 22, 4715-553 Sobreposta",
-            Phone = "253 636 948"
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
         });
-        dbContext.SaveChanges();
+
+        // JWT Authentication
+        var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLong!";
+        var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "PoolTrackerAPI";
+        var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "PoolTrackerClients";
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtIssuer,
+                ValidAudience = jwtAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+
+        builder.Services.AddAuthorization();
+
+        // Swagger/OpenAPI
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(Configuration.SwaggerConfiguration.ConfigureSwagger);
+
+
+        var app = builder.Build();
+
+        // Configure the HTTP request pipeline
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "PoolTracker API v1");
+                options.RoutePrefix = "swagger";
+            });
+        }
+
+        app.UseHttpsRedirection();
+        app.UseCors("AllowAll");
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapControllers();
+
+        // Ensure database is created
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<PoolTrackerDbContext>();
+            dbContext.Database.EnsureCreated();
+            
+            // Seed initial data if needed
+            if (!dbContext.PoolStatus.Any())
+            {
+                dbContext.PoolStatus.Add(new PoolStatus
+                {
+                    CurrentCount = 0,
+                    MaxCapacity = 120,
+                    IsOpen = true,
+                    LocationName = "Piscina Municipal da Sobreposta",
+                    Address = "R. da Piscina 22, 4715-553 Sobreposta",
+                    Phone = "253 636 948"
+                });
+                dbContext.SaveChanges();
+            }
+        }
+
+        app.Run();
     }
 }
-
-app.Run();
