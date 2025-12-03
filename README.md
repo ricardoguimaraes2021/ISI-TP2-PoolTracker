@@ -281,10 +281,17 @@ POST   /api/auth/login               - Login (Público)
 
 ### Cobertura de Testes
 
-- **Testes Unitários**: 20+ testes (Services)
-- **Testes de Integração**: 15+ testes (Controllers)
-- **Testes End-to-End**: 10+ testes (API completa)
-- **Code Coverage**: Objetivo ≥ 70%
+- **Testes Unitários**: 30 testes (Services)
+  - PoolServiceTests: 17 testes
+  - WorkerServiceTests: 9 testes
+  - WaterQualityServiceTests: 4 testes
+- **Testes de Integração**: 7 testes (Controllers)
+  - PoolControllerTests: 4 testes
+  - AuthControllerTests: 3 testes
+- **Testes End-to-End**: 5 testes (API completa com JWT)
+  - PoolApiTests: 5 testes
+- **Total**: 42 testes implementados
+- **Code Coverage**: Objetivo ≥ 70% (pendente configuração)
 
 ### Ferramentas
 
@@ -319,6 +326,8 @@ public async Task Enter_ShouldIncrementCount_WhenPoolNotFull()
 
 | Documento | Descrição | Localização |
 |-----------|-----------|-------------|
+| **API Documentation** | Documentação completa dos endpoints REST e SOAP | [DOCUMENTATION/API_Documentation.md](./DOCUMENTATION/API_Documentation.md) |
+| **Installation Guide** | Guia detalhado de instalação e configuração | [DOCUMENTATION/Installation_Guide.md](./DOCUMENTATION/Installation_Guide.md) |
 | **PRD** | Product Requirements Document completo | [DOCUMENTATION/PRD.md](./DOCUMENTATION/PRD.md) |
 | **Implementation Plan** | Plano de implementação detalhado (10 fases) | [DOCUMENTATION/ImplementationPlan.md](./DOCUMENTATION/ImplementationPlan.md) |
 | **Analysis Report** | Análise de requisitos vs implementação | [DOCUMENTATION/AnalysisReport.md](./DOCUMENTATION/AnalysisReport.md) |
@@ -328,9 +337,10 @@ public async Task Enter_ShouldIncrementCount_WhenPoolNotFull()
 
 ### Swagger/OpenAPI
 
-- **UI**: `https://seu-dominio.com/swagger`
-- **JSON**: `https://seu-dominio.com/swagger/v1/swagger.json`
+- **UI**: `http://localhost:5292/swagger` (desenvolvimento)
+- **JSON**: `http://localhost:5292/swagger/v1/swagger.json`
 - **Descrição**: Documentação interativa de todos os 40+ endpoints REST
+- **Documentação Completa**: Ver [API_Documentation.md](./DOCUMENTATION/API_Documentation.md) para detalhes de todos os endpoints REST e SOAP
 
 ---
 
@@ -343,50 +353,48 @@ public async Task Enter_ShouldIncrementCount_WhenPoolNotFull()
 - Node.js 18+
 - Git
 
-### Backend (.NET)
+### Instalação Rápida
+
+Para instruções detalhadas, consulte o [Guia de Instalação](./DOCUMENTATION/Installation_Guide.md).
 
 ```bash
-# Clonar o repositório
+# 1. Clonar o repositório
 git clone https://github.com/ricardoguimaraes2021/ISI-TP2-PoolTracker.git
-cd ISI-TP2-PoolTracker/backend/PoolTracker.API
+cd ISI-TP2-PoolTracker
 
-# Restaurar dependências
-dotnet restore
-
-# Configurar connection string em appsettings.json
-# Executar migrations
+# 2. Configurar base de dados (editar appsettings.json)
+# 3. Aplicar migrations
+cd PoolTracker.API
 dotnet ef database update
 
-# Executar API
+# 4. Executar API RESTful
 dotnet run
-```
+# API disponível em http://localhost:5292
 
-A API estará disponível em `http://localhost:5292`
+# 5. Executar Serviços SOAP (em outro terminal)
+cd ../PoolTracker.SOAP
+dotnet run
+# SOAP disponível em http://localhost:5000
 
-### Frontend (React)
-
-```bash
-cd frontend/pooltracker-web
-
-# Instalar dependências
+# 6. Executar Frontend (em outro terminal)
+cd ../pooltracker-web
 npm install
-
-# Configurar variáveis de ambiente (.env)
-# VITE_API_URL=http://localhost:5292
-# VITE_ADMIN_PIN=1234
-# VITE_ADMIN_API_KEY=sua-chave-aqui
-
-# Executar em modo de desenvolvimento
 npm run dev
+# Frontend disponível em http://localhost:5173
 ```
 
-O frontend estará disponível em `http://localhost:5173`
+### Acesso
+
+- **Swagger UI**: http://localhost:5292/swagger
+- **Frontend Público**: http://localhost:5173/
+- **Login Admin**: http://localhost:5173/admin/login (PIN: 1234)
+- **WSDL SOAP**: http://localhost:5000/soap/PoolDataService?wsdl
 
 ### Testes
 
 ```bash
-cd backend/PoolTracker.Tests
-dotnet test --collect:"XPlat Code Coverage"
+cd PoolTracker.Tests
+dotnet test
 ```
 
 ---
@@ -484,20 +492,86 @@ Ver [DOCUMENTATION/ImplementationPlan.md](./DOCUMENTATION/ImplementationPlan.md)
 
 ## 📅 Cronograma de Desenvolvimento
 
-| Fase | Descrição | Tempo Estimado | Status |
-|------|-----------|----------------|--------|
-| **Fase 1** | Fundação (EF Core, DB, Repositories) | 10-12h | ✅ |
-| **Fase 2** | RESTful API Core | 8-10h | ✅ |
-| **Fase 3** | Funcionalidades Avançadas | 6-8h | 🔄 |
-| **Fase 4** | Autenticação JWT | 4-6h | 🔄 |
-| **Fase 5** | Serviços SOAP | 8-10h | ⏳ |
-| **Fase 6** | Documentação Swagger | 3-4h | ⏳ |
-| **Fase 7** | Testes Automatizados | 10-12h | ⏳ |
-| **Fase 8** | Frontend Expandido | 8-10h | ⏳ |
-| **Fase 9** | Deploy na Cloud | 6-8h | ⏳ |
-| **Fase 10** | Documentação Final | 4-6h | ⏳ |
+### Visão Geral
 
-**Total Estimado**: 67-86 horas
+| Fase | Descrição | Semana | Tempo Estimado | Status |
+|------|-----------|--------|----------------|--------|
+| **Fase 1** | Fundação (EF Core, DB, Repositories) | Semana 1 | 10-12h | ✅ COMPLETA |
+| **Fase 2** | RESTful API Core | Semana 1-2 | 8-10h | ✅ COMPLETA |
+| **Fase 3** | Funcionalidades Avançadas | Semana 2 | 6-8h | ✅ COMPLETA |
+| **Fase 4** | Autenticação JWT | Semana 2 | 4-6h | ✅ COMPLETA |
+| **Fase 5** | Serviços SOAP | Semana 3 | 8-10h | ✅ COMPLETA |
+| **Fase 6** | Documentação Swagger | Semana 3 | 3-4h | ✅ COMPLETA |
+| **Fase 7** | Testes Automatizados | Semana 3-4 | 10-12h | ✅ COMPLETA |
+| **Fase 8** | Frontend Expandido | Semana 4 | 8-10h | ✅ COMPLETA |
+| **Fase 9** | Deploy na Cloud | Semana 4 | 6-8h | ⏳ PENDENTE |
+| **Fase 10** | Documentação Final | Semana 4 | 4-6h | 🔄 EM PROGRESSO |
+
+**Total Estimado**: 67-86 horas  
+**Progresso**: 8/10 fases completas (80%)  
+**Tempo Investido**: ~60-70 horas
+
+### Detalhamento por Fase
+
+#### ✅ Semana 1: Fundação + API Core (18-22h)
+- **Fase 1**: Fundação completa
+  - ✅ Estrutura de projetos criada
+  - ✅ Entity Framework Core configurado
+  - ✅ 8 tabelas criadas e migradas
+  - ✅ Repository Pattern implementado
+- **Fase 2**: RESTful API Core
+  - ✅ 9 controllers implementados
+  - ✅ 40+ endpoints REST funcionais
+  - ✅ Validação de DTOs
+
+#### ✅ Semana 2: Funcionalidades + Segurança (10-14h)
+- **Fase 3**: Funcionalidades Avançadas
+  - ✅ Relatórios automáticos
+  - ✅ Estatísticas e gráficos
+  - ✅ Integração Open-Meteo
+  - ✅ Lista de compras
+- **Fase 4**: Autenticação JWT
+  - ✅ JWT Bearer Authentication
+  - ✅ Refresh tokens
+  - ✅ Proteção de endpoints
+
+#### ✅ Semana 3: SOAP + Documentação + Testes (21-26h)
+- **Fase 5**: Serviços SOAP
+  - ✅ 4 serviços SOAP implementados
+  - ✅ WSDL auto-gerado
+  - ✅ Data Layer completo
+- **Fase 6**: Documentação Swagger
+  - ✅ Swagger UI configurado
+  - ✅ XML comments em todos os endpoints
+  - ✅ Autenticação JWT no Swagger
+- **Fase 7**: Testes Automatizados
+  - ✅ 42 testes implementados
+    - 30 testes unitários (Services)
+    - 7 testes de integração (Controllers)
+    - 5 testes end-to-end (API)
+
+#### ✅ Semana 4: Frontend + Documentação (12-16h)
+- **Fase 8**: Frontend Expandido
+  - ✅ React + Vite configurado
+  - ✅ 6 páginas implementadas
+  - ✅ Autenticação JWT no frontend
+  - ✅ Gráficos com Recharts
+- **Fase 9**: Deploy na Cloud
+  - ⏳ Pendente
+- **Fase 10**: Documentação Final
+  - ✅ README.md atualizado
+  - ✅ API_Documentation.md criado
+  - ✅ Installation_Guide.md criado
+  - 🔄 Relatório final pendente
+
+### Milestones Alcançados
+
+| Milestone | Status | Data |
+|-----------|--------|------|
+| **M1: MVP Backend** | ✅ | Semana 1 |
+| **M2: Feature Complete** | ✅ | Semana 2 |
+| **M3: SOA Complete** | ✅ | Semana 3 |
+| **M4: Production Ready** | 🔄 | Semana 4 (80%) |
 
 ---
 
