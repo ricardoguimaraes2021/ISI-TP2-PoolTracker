@@ -579,17 +579,17 @@ az webapp deployment source config-zip --resource-group PoolTrackerRG --name poo
 
 ### Fase 5: Serviços SOAP (Semana 3)
 **Tempo estimado**: 8-10 horas
-**Status**: 🚧 EM PROGRESSO
+**Status**: ✅ COMPLETA
 
 - [x] Criar projeto PoolTracker.SOAP
-- [ ] Definir Service Contracts
-- [ ] Definir Data Contracts
-- [ ] Implementar PoolDataService
-- [ ] Implementar WorkerDataService
-- [ ] Implementar WaterQualityDataService
-- [ ] Implementar ReportDataService
-- [ ] Configurar endpoints SOAP
-- [ ] Gerar WSDL
+- [x] Definir Service Contracts
+- [x] Definir Data Contracts
+- [x] Implementar PoolDataService
+- [x] Implementar WorkerDataService
+- [x] Implementar WaterQualityDataService
+- [x] Implementar ReportDataService
+- [x] Configurar endpoints SOAP
+- [x] Gerar WSDL (automático via SoapCore)
 
 ### Fase 6: Documentação Swagger (Semana 3)
 **Tempo estimado**: 3-4 horas
