@@ -49,7 +49,7 @@
 - [x] Configurar JWT Bearer Authentication
 - [x] Adicionar [Authorize] nos endpoints protegidos
 - [x] Implementar refresh tokens
-- [ ] Atualizar frontend para usar JWT (pendente Fase 8)
+- [x] Atualizar frontend para usar JWT (completado na Fase 8)
 
 ### Fase 5: Serviços SOAP (8-10h)
 - [x] Criar projeto PoolTracker.SOAP

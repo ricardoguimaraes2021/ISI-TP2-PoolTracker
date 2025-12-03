@@ -575,7 +575,7 @@ az webapp deployment source config-zip --resource-group PoolTrackerRG --name poo
 - [x] Configurar JWT Bearer Authentication
 - [x] Adicionar `[Authorize]` nos endpoints protegidos
 - [x] Implementar refresh tokens
-- [ ] Atualizar frontend para usar JWT (pendente Fase 8)
+- [x] Atualizar frontend para usar JWT (completado na Fase 8)
 
 ### Fase 5: Serviços SOAP (Semana 3)
 **Tempo estimado**: 8-10 horas
