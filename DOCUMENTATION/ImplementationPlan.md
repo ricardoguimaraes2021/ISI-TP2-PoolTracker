@@ -534,49 +534,54 @@ az webapp deployment source config-zip --resource-group PoolTrackerRG --name poo
 
 ### Fase 1: Fundação (Semana 1)
 **Tempo estimado**: 10-12 horas
+**Status**: ✅ COMPLETA
 
-- [ ] Criar estrutura de projetos (API, SOAP, Core, Infrastructure, Tests)
-- [ ] Configurar Entity Framework Core
-- [ ] Criar DbContext e Entities
-- [ ] Criar migrations e aplicar schema
-- [ ] Configurar connection strings
-- [ ] Implementar Repository Pattern
-- [ ] Configurar Dependency Injection
+- [x] Criar estrutura de projetos (API, SOAP, Core, Infrastructure, Tests)
+- [x] Configurar Entity Framework Core
+- [x] Criar DbContext e Entities
+- [x] Criar migrations e aplicar schema
+- [x] Configurar connection strings
+- [x] Implementar Repository Pattern
+- [x] Configurar Dependency Injection
 
 ### Fase 2: RESTful API Core (Semana 1-2)
 **Tempo estimado**: 8-10 horas
+**Status**: ✅ COMPLETA
 
-- [ ] Migrar PoolController para usar EF Core
-- [ ] Implementar WorkerController + Service
-- [ ] Implementar WaterQualityController + Service
-- [ ] Implementar CleaningController + Service
-- [ ] Implementar VisitorController + Service
-- [ ] Adicionar operação DELETE em todos os controllers
-- [ ] Validação de DTOs
+- [x] Migrar PoolController para usar EF Core
+- [x] Implementar WorkerController + Service
+- [x] Implementar WaterQualityController + Service
+- [x] Implementar CleaningController + Service
+- [x] Implementar VisitService (integrado no PoolService)
+- [x] Adicionar operação DELETE em todos os controllers
+- [x] Validação de DTOs
 
 ### Fase 3: Funcionalidades Avançadas (Semana 2)
 **Tempo estimado**: 6-8 horas
+**Status**: ✅ COMPLETA
 
-- [ ] Implementar ReportController + Service
-- [ ] Lógica de geração automática de relatórios
-- [ ] StatisticsController para gráficos
-- [ ] ShoppingListController
-- [ ] Integração com Open-Meteo (já existe, manter)
+- [x] Implementar ReportController + Service
+- [x] Lógica de geração automática de relatórios
+- [x] StatisticsController para gráficos
+- [x] ShoppingListController
+- [x] Integração com Open-Meteo (WeatherService implementado)
 
 ### Fase 4: Autenticação JWT (Semana 2)
 **Tempo estimado**: 4-6 horas
+**Status**: ✅ COMPLETA
 
-- [ ] Criar AuthController
-- [ ] Implementar geração de JWT tokens
-- [ ] Configurar JWT Bearer Authentication
-- [ ] Adicionar `[Authorize]` nos endpoints protegidos
-- [ ] Implementar refresh tokens
-- [ ] Atualizar frontend para usar JWT
+- [x] Criar AuthController
+- [x] Implementar geração de JWT tokens
+- [x] Configurar JWT Bearer Authentication
+- [x] Adicionar `[Authorize]` nos endpoints protegidos
+- [x] Implementar refresh tokens
+- [ ] Atualizar frontend para usar JWT (pendente Fase 8)
 
 ### Fase 5: Serviços SOAP (Semana 3)
 **Tempo estimado**: 8-10 horas
+**Status**: 🚧 EM PROGRESSO
 
-- [ ] Criar projeto PoolTracker.SOAP
+- [x] Criar projeto PoolTracker.SOAP
 - [ ] Definir Service Contracts
 - [ ] Definir Data Contracts
 - [ ] Implementar PoolDataService
