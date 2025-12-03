@@ -22,6 +22,20 @@ builder.Services.AddDbContext<PoolTrackerDbContext>(options =>
 // Repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+// HttpClient for WeatherService
+builder.Services.AddHttpClient<PoolTracker.API.Services.IWeatherService, PoolTracker.API.Services.WeatherService>();
+
+// Services
+builder.Services.AddScoped<PoolTracker.API.Services.IPoolService, PoolTracker.API.Services.PoolService>();
+builder.Services.AddScoped<PoolTracker.API.Services.IVisitService, PoolTracker.API.Services.VisitService>();
+builder.Services.AddScoped<PoolTracker.API.Services.IWorkerService, PoolTracker.API.Services.WorkerService>();
+builder.Services.AddScoped<PoolTracker.API.Services.IWaterQualityService, PoolTracker.API.Services.WaterQualityService>();
+builder.Services.AddScoped<PoolTracker.API.Services.ICleaningService, PoolTracker.API.Services.CleaningService>();
+builder.Services.AddScoped<PoolTracker.API.Services.IReportService, PoolTracker.API.Services.ReportService>();
+builder.Services.AddScoped<PoolTracker.API.Services.IStatisticsService, PoolTracker.API.Services.StatisticsService>();
+builder.Services.AddScoped<PoolTracker.API.Services.IShoppingService, PoolTracker.API.Services.ShoppingService>();
+builder.Services.AddScoped<PoolTracker.API.Services.IJwtService, PoolTracker.API.Services.JwtService>();
+
 // CORS
 builder.Services.AddCors(options =>
 {
@@ -64,8 +78,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// HTTP Client for external APIs
-builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
