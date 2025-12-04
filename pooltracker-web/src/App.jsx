@@ -11,8 +11,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Toaster position="top-right" />
+      <div className="min-h-screen bg-background">
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            className: "bg-card border border-border",
+            style: {
+              background: "hsl(var(--card))",
+              color: "hsl(var(--card-foreground))",
+              border: "1px solid hsl(var(--border))",
+            },
+          }}
+        />
         <Routes>
           <Route path="/" element={<PublicPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -24,11 +34,12 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Rotas antigas redirecionam para AdminDashboard com tab correta */}
           <Route
             path="/admin/workers"
             element={
               <ProtectedRoute>
-                <WorkersPage />
+                <AdminDashboard initialTab="workers" />
               </ProtectedRoute>
             }
           />
@@ -36,7 +47,7 @@ function App() {
             path="/admin/water-quality"
             element={
               <ProtectedRoute>
-                <WaterQualityPage />
+                <AdminDashboard initialTab="water" />
               </ProtectedRoute>
             }
           />
@@ -44,7 +55,7 @@ function App() {
             path="/admin/reports"
             element={
               <ProtectedRoute>
-                <ReportsPage />
+                <AdminDashboard initialTab="reports" />
               </ProtectedRoute>
             }
           />

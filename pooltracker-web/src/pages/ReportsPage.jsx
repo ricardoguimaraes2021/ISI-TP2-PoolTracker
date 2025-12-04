@@ -4,6 +4,9 @@ import { ArrowLeft, FileText, AlertCircle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 
 const ReportsPage = () => {
   const [reports, setReports] = useState([]);
@@ -78,28 +81,34 @@ const ReportsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <Link
-          to="/admin"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Voltar
+        <Link to="/admin" className="mb-8 inline-block">
+          <Button variant="ghost" className="flex items-center gap-2">
+            <ArrowLeft className="w-5 h-5" />
+            Voltar
+          </Button>
         </Link>
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Relatórios e Estatísticas</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-8">Relatórios e Estatísticas</h1>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5" />
-            <span>{error}</span>
-          </div>
+          <Card className="border-destructive/50 bg-destructive/10 mb-6">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="w-5 h-5" />
+                <span>{error}</span>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {statistics && Array.isArray(statistics) && statistics.length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Fluxo de Visitantes (7 dias)</h2>
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Fluxo de Visitantes (7 dias)</CardTitle>
+            </CardHeader>
+            <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={statistics}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -109,54 +118,63 @@ const ReportsPage = () => {
                 <Line type="monotone" dataKey="visitors" stroke="#3b82f6" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {!statistics && !loading && (
-          <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg mb-6">
-            Não há dados de estatísticas disponíveis.
-          </div>
+          <Card className="mb-6 border-yellow-500/50 bg-yellow-500/10">
+            <CardContent className="pt-6">
+              <p className="text-yellow-700 dark:text-yellow-400">Não há dados de estatísticas disponíveis.</p>
+            </CardContent>
+          </Card>
         )}
 
         <div className="space-y-4">
           {reports && reports.length > 0 ? (
             reports.map((report) => (
-              <div key={report.id} className="bg-white rounded-lg shadow-lg p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <FileText className="w-6 h-6 text-purple-600" />
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Relatório - {report.reportDate ? new Date(report.reportDate).toLocaleDateString('pt-PT') : 'Data não disponível'}
-                  </h3>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Visitantes</p>
-                    <p className="text-2xl font-bold text-gray-800">{report.totalVisitors ?? 0}</p>
+              <Card key={report.id}>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-6 h-6 text-purple-500" />
+                    <CardTitle>
+                      Relatório - {report.reportDate ? new Date(report.reportDate).toLocaleDateString('pt-PT') : 'Data não disponível'}
+                    </CardTitle>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Ocupação Máxima</p>
-                    <p className="text-2xl font-bold text-gray-800">{report.maxOccupancy ?? 0}</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Visitantes</p>
+                      <p className="text-2xl font-bold text-foreground">{report.totalVisitors ?? 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Ocupação Máxima</p>
+                      <p className="text-2xl font-bold text-foreground">{report.maxOccupancy ?? 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Ocupação Média</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {report.avgOccupancy ? report.avgOccupancy.toFixed(1) : 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Hora de Fecho</p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {report.closingTime ? new Date(report.closingTime).toLocaleTimeString('pt-PT') : 'N/A'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Ocupação Média</p>
-                    <p className="text-2xl font-bold text-gray-800">
-                      {report.avgOccupancy ? report.avgOccupancy.toFixed(1) : 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Hora de Fecho</p>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {report.closingTime ? new Date(report.closingTime).toLocaleTimeString('pt-PT') : 'N/A'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))
           ) : (
-            <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">Não há relatórios disponíveis.</p>
-            </div>
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Não há relatórios disponíveis.</p>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

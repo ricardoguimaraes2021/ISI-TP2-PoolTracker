@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Droplets } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Select } from '../components/ui/select';
 
 const WaterQualityPage = () => {
   const [measurements, setMeasurements] = useState([]);
@@ -48,128 +52,124 @@ const WaterQualityPage = () => {
   };
 
   if (loading) {
-    return <div className="p-8">A carregar...</div>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">A carregar...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <Link
-            to="/admin"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Voltar
+          <Link to="/admin">
+            <Button variant="ghost" className="flex items-center gap-2">
+              <ArrowLeft className="w-5 h-5" />
+              Voltar
+            </Button>
           </Link>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="w-5 h-5" />
+          <Button onClick={() => setShowForm(!showForm)}>
+            <Plus className="w-5 h-5 mr-2" />
             Nova Medição
-          </button>
+          </Button>
         </div>
 
         {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Registar Medição</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tipo de Piscina
-                </label>
-                <select
-                  value={formData.poolType}
-                  onChange={(e) => setFormData({ ...formData, poolType: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="Criancas">Crianças</option>
-                  <option value="Adultos">Adultos</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">pH</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={formData.phLevel}
-                  onChange={(e) => setFormData({ ...formData, phLevel: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Temperatura (°C)
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={formData.temperature}
-                  onChange={(e) => setFormData({ ...formData, temperature: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notas</label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  rows="3"
-                />
-              </div>
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-                >
-                  Registar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Registar Medição</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Tipo de Piscina
+                  </label>
+                  <Select
+                    value={formData.poolType}
+                    onChange={(e) => setFormData({ ...formData, poolType: e.target.value })}
+                  >
+                    <option value="Criancas">Crianças</option>
+                    <option value="Adultos">Adultos</option>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">pH</label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={formData.phLevel}
+                    onChange={(e) => setFormData({ ...formData, phLevel: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Temperatura (°C)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={formData.temperature}
+                    onChange={(e) => setFormData({ ...formData, temperature: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Notas</label>
+                  <textarea
+                    value={formData.notes}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    rows="3"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <Button type="submit">Registar</Button>
+                  <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {measurements.map((measurement) => (
-            <div key={measurement.id} className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Droplets className="w-8 h-8 text-cyan-600" />
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Piscina {measurement.poolType}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {new Date(measurement.measuredAt).toLocaleString('pt-PT')}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">pH:</span>
-                  <span className="font-semibold">{measurement.phLevel}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Temperatura:</span>
-                  <span className="font-semibold">{measurement.temperature}°C</span>
-                </div>
-                {measurement.notes && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm text-gray-600">{measurement.notes}</p>
+            <Card key={measurement.id}>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <Droplets className="w-8 h-8 text-cyan-500" />
+                  <div>
+                    <CardTitle className="text-lg">
+                      Piscina {measurement.poolType}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(measurement.measuredAt).toLocaleString('pt-PT')}
+                    </p>
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">pH:</span>
+                    <span className="font-semibold">{measurement.phLevel}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Temperatura:</span>
+                    <span className="font-semibold">{measurement.temperature}°C</span>
+                  </div>
+                  {measurement.notes && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-sm text-muted-foreground">{measurement.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
@@ -178,4 +178,3 @@ const WaterQualityPage = () => {
 };
 
 export default WaterQualityPage;
-
