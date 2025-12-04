@@ -217,5 +217,57 @@ public class WorkerController : ControllerBase
         if (!success) return BadRequest("Worker not found or not on shift");
         return Ok(new { message = "Shift deactivated" });
     }
+
+    /// <summary>
+    /// Obter estatísticas de turnos
+    /// </summary>
+    /// <remarks>
+    /// Retorna estatísticas de turnos dos trabalhadores num período específico.
+    /// Requer autenticação JWT.
+    /// Agrupa por trabalhador e mostra contagem de turnos manhã e tarde.
+    /// </remarks>
+    /// <param name="startDate">Data de início (formato: YYYY-MM-DD)</param>
+    /// <param name="endDate">Data de fim (formato: YYYY-MM-DD)</param>
+    /// <returns>Estatísticas de turnos</returns>
+    /// <response code="200">Estatísticas retornadas com sucesso</response>
+    /// <response code="401">Não autenticado</response>
+    [HttpGet("shift-stats")]
+    [Authorize]
+    [ProducesResponseType(typeof(List<ShiftStatsDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<List<ShiftStatsDto>>> GetShiftStats([FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
+    {
+        var start = startDate ?? new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        var end = endDate ?? new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.DaysInMonth(DateTime.UtcNow.Year, DateTime.UtcNow.Month));
+        
+        var stats = await _workerService.GetShiftStatsAsync(start, end);
+        return Ok(stats);
+    }
+
+    /// <summary>
+    /// Obter histórico de turnos de um trabalhador
+    /// </summary>
+    /// <remarks>
+    /// Retorna o histórico de turnos de um trabalhador específico num período.
+    /// Requer autenticação JWT.
+    /// </remarks>
+    /// <param name="workerId">ID único do trabalhador (formato W0001)</param>
+    /// <param name="startDate">Data de início (formato: YYYY-MM-DD)</param>
+    /// <param name="endDate">Data de fim (formato: YYYY-MM-DD)</param>
+    /// <returns>Histórico de turnos</returns>
+    /// <response code="200">Histórico retornado com sucesso</response>
+    /// <response code="401">Não autenticado</response>
+    [HttpGet("{workerId}/shifts")]
+    [Authorize]
+    [ProducesResponseType(typeof(List<WorkerShiftDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<List<WorkerShiftDto>>> GetWorkerShifts(string workerId, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
+    {
+        var start = startDate ?? new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        var end = endDate ?? new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.DaysInMonth(DateTime.UtcNow.Year, DateTime.UtcNow.Month));
+        
+        var shifts = await _workerService.GetWorkerShiftsAsync(workerId, start, end);
+        return Ok(shifts);
+    }
 }
 

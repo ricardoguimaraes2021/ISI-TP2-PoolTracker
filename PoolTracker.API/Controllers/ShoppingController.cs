@@ -84,6 +84,31 @@ public class ShoppingController : ControllerBase
     }
 
     /// <summary>
+    /// Atualizar item da lista de compras
+    /// </summary>
+    /// <remarks>
+    /// Atualiza os dados de um item existente na lista de compras.
+    /// Requer autenticação JWT.
+    /// Apenas os campos fornecidos no request serão atualizados.
+    /// </remarks>
+    /// <param name="id">ID do item</param>
+    /// <param name="request">Dados a atualizar (todos os campos são opcionais)</param>
+    /// <returns>Item atualizado</returns>
+    /// <response code="200">Item atualizado com sucesso</response>
+    /// <response code="401">Não autenticado</response>
+    /// <response code="404">Item não encontrado</response>
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(ShoppingItemDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ShoppingItemDto>> Update(int id, [FromBody] UpdateShoppingItemRequest request)
+    {
+        var item = await _shoppingService.UpdateItemAsync(id, request);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    /// <summary>
     /// Remover item da lista de compras
     /// </summary>
     /// <remarks>
