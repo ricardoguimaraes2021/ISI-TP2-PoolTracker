@@ -74,8 +74,19 @@ public class CleaningController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<CleaningDto>> RecordCleaning([FromBody] RecordCleaningRequest request)
     {
-        var cleaning = await _cleaningService.RecordCleaningAsync(request);
-        return CreatedAtAction(nameof(GetCleaningById), new { id = cleaning.Id }, cleaning);
+        try
+        {
+            Console.WriteLine($"RecordCleaning called with CleaningType: {request.CleaningType}, Notes: {request.Notes}");
+            var cleaning = await _cleaningService.RecordCleaningAsync(request);
+            Console.WriteLine($"Cleaning recorded successfully with ID: {cleaning.Id}");
+            return CreatedAtAction(nameof(GetCleaningById), new { id = cleaning.Id }, cleaning);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error recording cleaning: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            throw;
+        }
     }
 
     /// <summary>
@@ -127,4 +138,3 @@ public class CleaningController : ControllerBase
         return NoContent();
     }
 }
-

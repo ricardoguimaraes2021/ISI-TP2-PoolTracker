@@ -12,6 +12,12 @@ public class WorkerService : IWorkerService
     private readonly IRepository<ActiveWorker> _activeWorkerRepository;
     private readonly PoolTrackerDbContext _context;
 
+    // Horários dos turnos (em hora local de Portugal)
+    private static readonly TimeSpan MorningShiftStart = new TimeSpan(9, 0, 0);
+    private static readonly TimeSpan MorningShiftEnd = new TimeSpan(14, 0, 0);
+    private static readonly TimeSpan AfternoonShiftStart = new TimeSpan(14, 0, 0);
+    private static readonly TimeSpan AfternoonShiftEnd = new TimeSpan(19, 0, 0);
+
     public WorkerService(
         IRepository<Worker> repository,
         IRepository<ActiveWorker> activeWorkerRepository,
@@ -24,8 +30,6 @@ public class WorkerService : IWorkerService
 
     private async Task<string> GenerateWorkerIdAsync()
     {
-        // Get the last worker ID that starts with "W"
-        // We avoid .Length check in LINQ as it might cause translation issues in some providers
         var lastWorker = await _context.Workers
             .Where(w => w.WorkerId.StartsWith("W"))
             .OrderByDescending(w => w.WorkerId)
@@ -34,7 +38,6 @@ public class WorkerService : IWorkerService
         int nextId = 1;
         if (lastWorker != null)
         {
-            // Try to parse the numeric part (everything after 'W')
             if (lastWorker.WorkerId.Length > 1 && int.TryParse(lastWorker.WorkerId.Substring(1), out int lastId))
             {
                 nextId = lastId + 1;
@@ -44,10 +47,64 @@ public class WorkerService : IWorkerService
         return $"W{nextId:D4}";
     }
 
-    private ShiftType DetermineShiftType()
+    /// <summary>
+    /// Obtém a hora local de Portugal (Europe/Lisbon)
+    /// </summary>
+    private DateTime GetPortugalTime()
     {
-        var hour = DateTime.UtcNow.Hour;
-        return (hour >= 9 && hour < 14) ? ShiftType.Manha : ShiftType.Tarde;
+        var utcNow = DateTime.UtcNow;
+        try
+        {
+            var portugalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Lisbon");
+            return TimeZoneInfo.ConvertTimeFromUtc(utcNow, portugalTimeZone);
+        }
+        catch
+        {
+            // Fallback para Windows (nome diferente do timezone)
+            try
+            {
+                var portugalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+                return TimeZoneInfo.ConvertTimeFromUtc(utcNow, portugalTimeZone);
+            }
+            catch
+            {
+                // Se falhar, assume UTC (Portugal está em UTC no inverno)
+                return utcNow;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Determina automaticamente o tipo de turno baseado na hora local de Portugal
+    /// Manhã: 9:00 - 14:00
+    /// Tarde: 14:00 - 19:00
+    /// </summary>
+    public ShiftType DetermineCurrentShiftType()
+    {
+        var portugalTime = GetPortugalTime();
+        var currentTime = portugalTime.TimeOfDay;
+        
+        // Se estiver antes das 14:00, é turno da manhã
+        // Se estiver a partir das 14:00, é turno da tarde
+        if (currentTime >= MorningShiftStart && currentTime < MorningShiftEnd)
+        {
+            return ShiftType.Manha;
+        }
+        else
+        {
+            return ShiftType.Tarde;
+        }
+    }
+
+    /// <summary>
+    /// Verifica se está dentro do horário válido para iniciar turno (9:00 - 19:00)
+    /// </summary>
+    public bool IsValidShiftTime()
+    {
+        var portugalTime = GetPortugalTime();
+        var currentTime = portugalTime.TimeOfDay;
+        
+        return currentTime >= MorningShiftStart && currentTime < AfternoonShiftEnd;
     }
 
     public async Task<List<WorkerDto>> GetAllWorkersAsync(bool activeOnly = false)
@@ -60,7 +117,7 @@ public class WorkerService : IWorkerService
                 (w, aws) => new { Worker = w, ActiveWorkers = aws })
             .SelectMany(
                 x => x.ActiveWorkers.DefaultIfEmpty(),
-                (x, aw) => new { x.Worker, OnShift = aw != null });
+                (x, aw) => new { x.Worker, ActiveWorker = aw, OnShift = aw != null });
 
         if (activeOnly)
         {
@@ -79,6 +136,8 @@ public class WorkerService : IWorkerService
             Role = x.Worker.Role.ToString(),
             IsActive = x.Worker.IsActive,
             OnShift = x.OnShift,
+            CurrentShiftType = x.ActiveWorker?.ShiftType?.ToString(),
+            ShiftStartTime = x.ActiveWorker?.StartTime,
             CreatedAt = x.Worker.CreatedAt,
             UpdatedAt = x.Worker.UpdatedAt
         }).ToList();
@@ -89,8 +148,8 @@ public class WorkerService : IWorkerService
         var worker = await _repository.GetByIdAsync(id);
         if (worker == null) return null;
 
-        var onShift = await _context.ActiveWorkers
-            .AnyAsync(aw => aw.WorkerId == worker.WorkerId && aw.EndTime == null);
+        var activeWorker = await _context.ActiveWorkers
+            .FirstOrDefaultAsync(aw => aw.WorkerId == worker.WorkerId && aw.EndTime == null);
 
         return new WorkerDto
         {
@@ -99,7 +158,9 @@ public class WorkerService : IWorkerService
             Name = worker.Name,
             Role = worker.Role.ToString(),
             IsActive = worker.IsActive,
-            OnShift = onShift,
+            OnShift = activeWorker != null,
+            CurrentShiftType = activeWorker?.ShiftType?.ToString(),
+            ShiftStartTime = activeWorker?.StartTime,
             CreatedAt = worker.CreatedAt,
             UpdatedAt = worker.UpdatedAt
         };
@@ -112,8 +173,8 @@ public class WorkerService : IWorkerService
         
         if (worker == null) return null;
 
-        var onShift = await _context.ActiveWorkers
-            .AnyAsync(aw => aw.WorkerId == workerId && aw.EndTime == null);
+        var activeWorker = await _context.ActiveWorkers
+            .FirstOrDefaultAsync(aw => aw.WorkerId == workerId && aw.EndTime == null);
 
         return new WorkerDto
         {
@@ -122,7 +183,9 @@ public class WorkerService : IWorkerService
             Name = worker.Name,
             Role = worker.Role.ToString(),
             IsActive = worker.IsActive,
-            OnShift = onShift,
+            OnShift = activeWorker != null,
+            CurrentShiftType = activeWorker?.ShiftType?.ToString(),
+            ShiftStartTime = activeWorker?.StartTime,
             CreatedAt = worker.CreatedAt,
             UpdatedAt = worker.UpdatedAt
         };
@@ -186,29 +249,86 @@ public class WorkerService : IWorkerService
         return true;
     }
 
-    public async Task<bool> ActivateShiftAsync(string workerId, ShiftType shiftType)
+    public async Task<ActivateShiftResult> ActivateShiftAsync(string workerId, ShiftType? shiftType = null)
     {
-        // Verifica se já está ativo
+        // 1. Verificar se a piscina está aberta
+        var poolStatus = await _context.PoolStatus.FirstOrDefaultAsync();
+        if (poolStatus == null || !poolStatus.IsOpen)
+        {
+            return new ActivateShiftResult
+            {
+                Success = false,
+                ErrorMessage = "Não é possível iniciar turno com a piscina fechada."
+            };
+        }
+
+        // 2. Verificar se está dentro do horário válido (9:00 - 19:00)
+        if (!IsValidShiftTime())
+        {
+            var portugalTime = GetPortugalTime();
+            return new ActivateShiftResult
+            {
+                Success = false,
+                ErrorMessage = $"Fora do horário de funcionamento. Os turnos só podem ser iniciados entre 09:00 e 19:00. Hora atual: {portugalTime:HH:mm}"
+            };
+        }
+
+        // 3. Verificar se já está ativo
         var existing = await _context.ActiveWorkers
             .FirstOrDefaultAsync(aw => aw.WorkerId == workerId && aw.EndTime == null);
         
-        if (existing != null) return true; // Já está ativo
+        if (existing != null)
+        {
+            return new ActivateShiftResult
+            {
+                Success = true, // Já está ativo, não é erro
+                ShiftType = existing.ShiftType,
+                ErrorMessage = null
+            };
+        }
 
+        // 4. Verificar se o trabalhador existe e está ativo
         var worker = await _context.Workers
             .FirstOrDefaultAsync(w => w.WorkerId == workerId);
         
-        if (worker == null) return false;
+        if (worker == null)
+        {
+            return new ActivateShiftResult
+            {
+                Success = false,
+                ErrorMessage = "Trabalhador não encontrado."
+            };
+        }
 
+        if (!worker.IsActive)
+        {
+            return new ActivateShiftResult
+            {
+                Success = false,
+                ErrorMessage = "Trabalhador está inativo."
+            };
+        }
+
+        // 5. Determinar automaticamente o tipo de turno se não especificado
+        var determinedShiftType = shiftType ?? DetermineCurrentShiftType();
+
+        // 6. Criar registo de turno ativo
         var activeWorker = new ActiveWorker
         {
             WorkerId = workerId,
             Role = worker.Role,
-            ShiftType = shiftType,
+            ShiftType = determinedShiftType,
             StartTime = DateTime.UtcNow
         };
 
         await _activeWorkerRepository.AddAsync(activeWorker);
-        return true;
+        
+        return new ActivateShiftResult
+        {
+            Success = true,
+            ShiftType = determinedShiftType,
+            ErrorMessage = null
+        };
     }
 
     public async Task<bool> DeactivateShiftAsync(string workerId)
@@ -230,9 +350,10 @@ public class WorkerService : IWorkerService
             .Where(aw => aw.EndTime == null)
             .ToListAsync();
 
+        var now = DateTime.UtcNow;
         foreach (var activeWorker in activeWorkers)
         {
-            activeWorker.EndTime = DateTime.UtcNow;
+            activeWorker.EndTime = now;
             await _activeWorkerRepository.UpdateAsync(activeWorker);
         }
     }
@@ -258,6 +379,8 @@ public class WorkerService : IWorkerService
             Role = aw.Role.ToString(),
             IsActive = aw.Worker.IsActive,
             OnShift = true,
+            CurrentShiftType = aw.ShiftType?.ToString(),
+            ShiftStartTime = aw.StartTime,
             CreatedAt = aw.Worker.CreatedAt,
             UpdatedAt = aw.Worker.UpdatedAt
         }).ToList();
@@ -281,32 +404,32 @@ public class WorkerService : IWorkerService
 
     public async Task<List<ShiftStatsDto>> GetShiftStatsAsync(DateTime startDate, DateTime endDate)
     {
-        var stats = await _context.ActiveWorkers
+        // Buscar todos os turnos completados no período (com EndTime definido)
+        var shifts = await _context.ActiveWorkers
             .Include(aw => aw.Worker)
             .Where(aw => aw.StartTime.Date >= startDate.Date && 
                         aw.StartTime.Date <= endDate.Date &&
-                        aw.EndTime != null)
-            .GroupBy(aw => new { aw.WorkerId, aw.Worker!.Name, aw.Worker.Role, aw.ShiftType })
-            .Select(g => new
-            {
-                g.Key.WorkerId,
-                g.Key.Name,
-                g.Key.Role,
-                g.Key.ShiftType,
-                Count = g.Count()
-            })
+                        aw.EndTime != null) // Só contar turnos completados
             .ToListAsync();
 
-        var result = stats
+        // Agrupar por trabalhador e calcular estatísticas
+        var result = shifts
             .GroupBy(s => s.WorkerId)
-            .Select(g => new ShiftStatsDto
+            .Select(g => 
             {
-                WorkerId = g.Key,
-                Name = g.First().Name,
-                Role = g.First().Role.ToString(),
-                Manha = g.Where(s => s.ShiftType == ShiftType.Manha).Sum(s => s.Count),
-                Tarde = g.Where(s => s.ShiftType == ShiftType.Tarde).Sum(s => s.Count),
-                Total = g.Sum(s => s.Count)
+                var firstShift = g.First();
+                var morningShifts = g.Count(s => s.ShiftType == ShiftType.Manha);
+                var afternoonShifts = g.Count(s => s.ShiftType == ShiftType.Tarde);
+                
+                return new ShiftStatsDto
+                {
+                    WorkerId = g.Key,
+                    Name = firstShift.Worker?.Name ?? "Desconhecido",
+                    Role = firstShift.Worker?.Role.ToString() ?? "Desconhecido",
+                    Manha = morningShifts,
+                    Tarde = afternoonShifts,
+                    Total = morningShifts + afternoonShifts
+                };
             })
             .OrderBy(s => s.Name)
             .ToList();
@@ -337,4 +460,3 @@ public class WorkerService : IWorkerService
         }).ToList();
     }
 }
-
