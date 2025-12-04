@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { 
-  Users, 
-  Droplets, 
-  Sparkles, 
-  Thermometer, 
-  Wind, 
-  Cloud, 
-  Sun, 
+import {
+  Users,
+  Droplets,
+  Sparkles,
+  Thermometer,
+  Wind,
+  Cloud,
+  Sun,
   CloudRain,
   CloudDrizzle,
   HelpCircle,
@@ -36,7 +36,7 @@ const PublicPage = () => {
         api.get('/api/pool/status'),
         api.get('/api/weather/current'),
         api.get('/api/workers/active'),
-        api.get('/api/cleanings/last'),
+        api.get('/api/cleaning/latest'),
         api.get('/api/water-quality/latest'),
       ]);
 
@@ -59,7 +59,15 @@ const PublicPage = () => {
 
       // Handle cleanings
       if (cleaningsRes.status === 'fulfilled') {
-        setCleanings(cleaningsRes.value.data);
+        const cleaningsData = cleaningsRes.value.data;
+        // API returns { balnearios: CleaningDto | null, wc: CleaningDto | null }
+        setCleanings({
+          balnearios: cleaningsData.balnearios || null,
+          wc: cleaningsData.wc || null
+        });
+      } else {
+        // Se falhar, definir como null para mostrar "Sem registos"
+        setCleanings(null);
       }
 
       // Handle water quality
@@ -102,13 +110,22 @@ const PublicPage = () => {
 
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleString("pt-PT", { 
-      day: "2-digit", 
-      month: "2-digit", 
-      hour: "2-digit", 
-      minute: "2-digit" 
-    });
+    try {
+      const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date:', dateString);
+        return "-";
+      }
+      return date.toLocaleString("pt-PT", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return "-";
+    }
   };
 
   const getWeatherIcon = (icon) => {
@@ -139,12 +156,12 @@ const PublicPage = () => {
     occupancyPercentage < 60
       ? "bg-emerald-500"
       : occupancyPercentage < 90
-      ? "bg-amber-500"
-      : "bg-rose-600";
+        ? "bg-amber-500"
+        : "bg-rose-600";
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center p-4 sm:p-6 lg:p-10">
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           className: "bg-card border border-border",
@@ -155,7 +172,7 @@ const PublicPage = () => {
           },
         }}
       />
-      
+
       <div className="w-full max-w-5xl space-y-6">
         {/* Cabeçalho */}
         <header className="flex flex-col sm:flex-row justify-between gap-3 items-start sm:items-center">
@@ -245,30 +262,29 @@ const PublicPage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {cleanings ? (
+                  {loading ? (
+                    <p className="text-sm text-muted-foreground">A carregar...</p>
+                  ) : cleanings ? (
                     <div className="space-y-3">
-                      {cleanings.balnearios && (
-                        <div>
-                          <span className="text-xs text-muted-foreground">Balneários</span>
-                          <p className="text-sm font-medium mt-1">
-                            {formatDateTime(cleanings.balnearios.cleanedAt || cleanings.balnearios.CleanedAt)}
-                          </p>
-                        </div>
-                      )}
-                      {cleanings.wc && (
-                        <div>
-                          <span className="text-xs text-muted-foreground">WC</span>
-                          <p className="text-sm font-medium mt-1">
-                            {formatDateTime(cleanings.wc.cleanedAt || cleanings.wc.CleanedAt)}
-                          </p>
-                        </div>
-                      )}
-                      {!cleanings.balnearios && !cleanings.wc && (
-                        <p className="text-sm text-muted-foreground">Sem registos</p>
-                      )}
+                      <div>
+                        <span className="text-xs text-muted-foreground">Balneários</span>
+                        <p className="text-sm font-medium mt-1">
+                          {cleanings.balnearios?.cleanedAt
+                            ? formatDateTime(cleanings.balnearios.cleanedAt)
+                            : "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">WC</span>
+                        <p className="text-sm font-medium mt-1">
+                          {cleanings.wc?.cleanedAt
+                            ? formatDateTime(cleanings.wc.cleanedAt)
+                            : "-"}
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">A carregar...</p>
+                    <p className="text-sm text-muted-foreground">Sem registos</p>
                   )}
                 </CardContent>
               </Card>
@@ -351,13 +367,12 @@ const PublicPage = () => {
                     <CardTitle className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-2">
                       Estado da piscina
                     </CardTitle>
-                    <Badge 
+                    <Badge
                       variant={poolStatus.isOpen ? "default" : "destructive"}
                       className="text-sm"
                     >
-                      <span className={`inline-flex h-2 w-2 rounded-full mr-2 ${
-                        poolStatus.isOpen ? "bg-emerald-400" : "bg-rose-500"
-                      }`} />
+                      <span className={`inline-flex h-2 w-2 rounded-full mr-2 ${poolStatus.isOpen ? "bg-emerald-400" : "bg-rose-500"
+                        }`} />
                       {statusText}
                     </Badge>
                   </div>

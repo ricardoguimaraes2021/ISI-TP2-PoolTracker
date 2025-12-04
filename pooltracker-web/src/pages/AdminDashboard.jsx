@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -44,7 +44,7 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
   // Workers
   const [workers, setWorkers] = useState([]);
   const [activeWorkers, setActiveWorkers] = useState([]);
-  const [newWorker, setNewWorker] = useState({ name: '', role: 'nadador_salvador' });
+  const [newWorker, setNewWorker] = useState({ name: '', role: 'NadadorSalvador' });
   const [loadingWorkers, setLoadingWorkers] = useState(false);
   const [workerRoleFilter, setWorkerRoleFilter] = useState('');
   const [editingWorker, setEditingWorker] = useState(null);
@@ -238,6 +238,28 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
     }
   }, [historyDateRange, shiftDateRange, shoppingFilter, activeTab]);
 
+  // Role labels - deve estar antes de qualquer retorno condicional
+  // Os valores correspondem aos valores retornados pela API (enum WorkerRole.ToString())
+  const roleLabels = {
+    NadadorSalvador: 'Nadador Salvador',
+    Vigilante: 'Vigilante',
+    Bar: 'Bar',
+    Bilheteira: 'Bilheteira',
+    // Também suporta os valores com underscore para compatibilidade
+    nadador_salvador: 'Nadador Salvador',
+    vigilante: 'Vigilante',
+    bar: 'Bar',
+    bilheteira: 'Bilheteira',
+  };
+
+  // Memoizar trabalhadores filtrados para garantir atualização correta
+  const filteredWorkers = useMemo(() => {
+    if (!workerRoleFilter || workerRoleFilter === '') {
+      return workers;
+    }
+    return workers.filter(worker => worker.role === workerRoleFilter);
+  }, [workers, workerRoleFilter]);
+
   // Pool actions
   const enter = async () => {
     try {
@@ -303,23 +325,33 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
     try {
       await api.post('/api/workers', newWorker);
       toast.success('Trabalhador criado com sucesso');
-      setNewWorker({ name: '', role: 'nadador_salvador' });
+      setNewWorker({ name: '', role: 'NadadorSalvador' });
       fetchWorkers();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erro ao criar trabalhador.');
     }
   };
 
-  const activateWorker = async (workerId, shiftType = 'Manha') => {
+  const activateWorker = async (workerId) => {
     try {
-      await api.post(`/api/workers/${workerId}/activate`, { shiftType });
-      toast.success('Turno iniciado com sucesso');
+      // Não enviamos shiftType, o backend decide automaticamente
+      const response = await api.post(`/api/workers/${workerId}/activate`, {});
+
+      if (response.data && response.data.shiftType) {
+        toast.success(`Turno iniciado: ${response.data.shiftType}`);
+      } else {
+        toast.success('Turno iniciado com sucesso');
+      }
+
       fetchWorkers();
       fetchActiveWorkers();
     } catch (err) {
-      toast.error('Erro ao iniciar turno');
+      const errorMessage = err.response?.data?.error || 'Erro ao iniciar turno';
+      toast.error(errorMessage);
     }
   };
+
+
 
   const deactivateWorker = async (workerId) => {
     try {
@@ -381,15 +413,24 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
   // Cleaning actions
   const recordCleaning = async () => {
     try {
-      await api.post('/api/cleaning', {
+      console.log('Sending cleaning data:', {
         cleaningType: newCleaning.cleaningType,
         notes: newCleaning.notes || null,
       });
+      const response = await api.post('/api/cleaning', {
+        cleaningType: newCleaning.cleaningType,
+        notes: newCleaning.notes || null,
+      });
+      console.log('Cleaning registered successfully:', response.data);
       toast.success('Limpeza registada com sucesso');
       setNewCleaning({ cleaningType: 'Balnearios', notes: '' });
       fetchCleanings();
     } catch (err) {
-      toast.error('Erro ao registrar limpeza.');
+      console.error('Error registering cleaning:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Erro ao registrar limpeza.';
+      toast.error(`Erro: ${errorMessage}`);
     }
   };
 
@@ -433,6 +474,15 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
     }
   };
 
+  const togglePurchased = async (id) => {
+    try {
+      await api.patch(`/api/shopping/${id}/toggle-purchased`);
+      fetchShoppingItems();
+    } catch (err) {
+      toast.error('Erro ao atualizar estado do item');
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
@@ -450,13 +500,6 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
     );
   }
 
-  const roleLabels = {
-    nadador_salvador: 'Nadador Salvador',
-    vigilante: 'Vigilante',
-    bar: 'Bar',
-    bilheteira: 'Bilheteira',
-  };
-
   const occupancyPercentage = poolStatus
     ? Math.round((poolStatus.currentCount / poolStatus.maxCapacity) * 100)
     : 0;
@@ -467,24 +510,34 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
     visitantes: v.visitors || v.Visitors || 0
   }));
 
+  // Normalizar dados da API para suportar tanto camelCase como PascalCase
   const waterChartData = waterHistory.reduce((acc, m) => {
-    const date = new Date(m.measuredAt).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' });
+    // Suportar ambos os formatos (API pode retornar PascalCase ou camelCase)
+    const measuredAt = m.measuredAt || m.MeasuredAt;
+    const poolType = m.poolType || m.PoolType;
+    const phLevel = m.phLevel ?? m.PhLevel;
+    const temperature = m.temperature ?? m.Temperature;
+    
+    if (!measuredAt) return acc; // Ignorar se não houver data
+    
+    const date = new Date(measuredAt).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' });
     const existing = acc.find(item => item.date === date);
+    
     if (existing) {
-      if (m.poolType === 'Criancas') {
-        existing.phCriancas = m.phLevel;
-        existing.tempCriancas = m.temperature;
+      if (poolType === 'Criancas') {
+        existing.phCriancas = phLevel;
+        existing.tempCriancas = temperature;
       } else {
-        existing.phAdultos = m.phLevel;
-        existing.tempAdultos = m.temperature;
+        existing.phAdultos = phLevel;
+        existing.tempAdultos = temperature;
       }
     } else {
       acc.push({
         date,
-        phCriancas: m.poolType === 'Criancas' ? m.phLevel : null,
-        tempCriancas: m.poolType === 'Criancas' ? m.temperature : null,
-        phAdultos: m.poolType === 'Adultos' ? m.phLevel : null,
-        tempAdultos: m.poolType === 'Adultos' ? m.temperature : null,
+        phCriancas: poolType === 'Criancas' ? phLevel : null,
+        tempCriancas: poolType === 'Criancas' ? temperature : null,
+        phAdultos: poolType === 'Adultos' ? phLevel : null,
+        tempAdultos: poolType === 'Adultos' ? temperature : null,
       });
     }
     return acc;
@@ -522,11 +575,10 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
+                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
@@ -697,10 +749,10 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                     value={newWorker.role}
                     onChange={(e) => setNewWorker({ ...newWorker, role: e.target.value })}
                   >
-                    <option value="nadador_salvador">Nadador Salvador</option>
-                    <option value="vigilante">Vigilante</option>
-                    <option value="bar">Bar</option>
-                    <option value="bilheteira">Bilheteira</option>
+                    <option value="NadadorSalvador">Nadador Salvador</option>
+                    <option value="Vigilante">Vigilante</option>
+                    <option value="Bar">Bar</option>
+                    <option value="Bilheteira">Bilheteira</option>
                   </Select>
                   <Button onClick={createWorker} disabled={loadingWorkers}>
                     <Plus className="w-4 h-4 mr-2" />
@@ -715,7 +767,7 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                 <CardTitle>Lista de Trabalhadores</CardTitle>
                 <CardDescription>
                   {workerRoleFilter
-                    ? `Filtrado por: ${roleLabels[workerRoleFilter] || workerRoleFilter} (${workers.filter(w => !workerRoleFilter || w.role === workerRoleFilter).length} trabalhadores)`
+                    ? `Filtrado por: ${roleLabels[workerRoleFilter] || workerRoleFilter} (${filteredWorkers.length} trabalhadores)`
                     : `Total: ${workers.length} trabalhadores`
                   }
                 </CardDescription>
@@ -724,14 +776,17 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                 <div className="mb-4 flex flex-col sm:flex-row gap-3">
                   <Select
                     value={workerRoleFilter}
-                    onChange={(e) => setWorkerRoleFilter(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setWorkerRoleFilter(value);
+                    }}
                     className="max-w-xs"
                   >
                     <option value="">Todos os cargos</option>
-                    <option value="nadador_salvador">Nadador Salvador</option>
-                    <option value="vigilante">Vigilante</option>
-                    <option value="bar">Bar</option>
-                    <option value="bilheteira">Bilheteira</option>
+                    <option value="NadadorSalvador">Nadador Salvador</option>
+                    <option value="Vigilante">Vigilante</option>
+                    <option value="Bar">Bar</option>
+                    <option value="Bilheteira">Bilheteira</option>
                   </Select>
                   <Button onClick={fetchWorkers} variant="outline" size="sm">
                     <RefreshCw className="w-4 h-4 mr-2" />
@@ -751,10 +806,17 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {workers
-                        .filter(worker => !workerRoleFilter || worker.role === workerRoleFilter)
-                        .map((worker) => (
-                          <tr key={worker.id} className="border-b border-border/50">
+                      {filteredWorkers.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" className="p-4 text-center text-muted-foreground">
+                            {workerRoleFilter
+                              ? `Nenhum trabalhador encontrado com o cargo "${roleLabels[workerRoleFilter] || workerRoleFilter}"`
+                              : 'Nenhum trabalhador encontrado'}
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredWorkers.map((worker) => (
+                          <tr key={worker.workerId} className="border-b border-border/50">
                             <td className="p-2 font-mono text-xs">{worker.workerId}</td>
                             <td className="p-2">{worker.name}</td>
                             <td className="p-2">{roleLabels[worker.role] || worker.role}</td>
@@ -776,28 +838,16 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                             <td className="p-2">
                               <div className="flex flex-wrap gap-2">
                                 {!worker.onShift && (
-                                  <>
-                                    <Button
-                                      onClick={() => activateWorker(worker.workerId, 'Manha')}
-                                      disabled={!poolStatus?.isOpen}
-                                      size="sm"
-                                      variant="default"
-                                      className="text-xs"
-                                    >
-                                      <Clock className="w-3 h-3 mr-1" />
-                                      <span className="hidden sm:inline">Manhã</span>
-                                    </Button>
-                                    <Button
-                                      onClick={() => activateWorker(worker.workerId, 'Tarde')}
-                                      disabled={!poolStatus?.isOpen}
-                                      size="sm"
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      <Clock className="w-3 h-3 mr-1" />
-                                      <span className="hidden sm:inline">Tarde</span>
-                                    </Button>
-                                  </>
+                                  <Button
+                                    onClick={() => activateWorker(worker.workerId)}
+                                    disabled={!poolStatus?.isOpen}
+                                    size="sm"
+                                    variant="default"
+                                    className="text-xs"
+                                  >
+                                    <Clock className="w-3 h-3 mr-1" />
+                                    <span className="hidden sm:inline">Iniciar Turno</span>
+                                  </Button>
                                 )}
                                 {worker.onShift && (
                                   <Button
@@ -831,7 +881,8 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                               </div>
                             </td>
                           </tr>
-                        ))}
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -861,10 +912,10 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                         value={editingWorker.role}
                         onChange={(e) => setEditingWorker({ ...editingWorker, role: e.target.value })}
                       >
-                        <option value="nadador_salvador">Nadador Salvador</option>
-                        <option value="vigilante">Vigilante</option>
-                        <option value="bar">Bar</option>
-                        <option value="bilheteira">Bilheteira</option>
+                        <option value="NadadorSalvador">Nadador Salvador</option>
+                        <option value="Vigilante">Vigilante</option>
+                        <option value="Bar">Bar</option>
+                        <option value="Bilheteira">Bilheteira</option>
                       </Select>
                     </div>
                     <div className="flex gap-2">
@@ -1084,7 +1135,7 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                   {cleanings?.balnearios ? (
                     <div>
                       <p className="text-xl font-semibold">
-                        {new Date(cleanings.balnearios.cleanedAt || cleanings.balnearios.CleanedAt).toLocaleString('pt-PT')}
+                        {new Date(cleanings.balnearios.cleanedAt).toLocaleString('pt-PT')}
                       </p>
                       {cleanings.balnearios.notes && (
                         <p className="text-sm text-muted-foreground mt-2">{cleanings.balnearios.notes}</p>
@@ -1104,7 +1155,7 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                   {cleanings?.wc ? (
                     <div>
                       <p className="text-xl font-semibold">
-                        {new Date(cleanings.wc.cleanedAt || cleanings.wc.CleanedAt).toLocaleString('pt-PT')}
+                        {new Date(cleanings.wc.cleanedAt).toLocaleString('pt-PT')}
                       </p>
                       {cleanings.wc.notes && (
                         <p className="text-sm text-muted-foreground mt-2">{cleanings.wc.notes}</p>
@@ -1291,33 +1342,64 @@ const AdminDashboard = ({ initialTab = 'dashboard' }) => {
                 </div>
                 {shoppingItems.length > 0 ? (
                   <div className="space-y-2">
-                    {shoppingItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
-                        <div className="flex-1">
-                          <div className="font-medium">{item.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            <Badge variant="outline">{item.category}</Badge>
+                    {shoppingItems.map((item) => {
+                      const isPurchased = item.isPurchased || item.IsPurchased;
+                      const purchasedAt = item.purchasedAt || item.PurchasedAt;
+                      return (
+                        <div 
+                          key={item.id || item.Id} 
+                          className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                            isPurchased 
+                              ? 'bg-emerald-500/10 border-emerald-500/30' 
+                              : 'bg-muted/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <button
+                              onClick={() => togglePurchased(item.id || item.Id)}
+                              className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
+                                isPurchased
+                                  ? 'bg-emerald-500 border-emerald-500 text-white'
+                                  : 'border-muted-foreground/30 hover:border-emerald-500'
+                              }`}
+                              title={isPurchased ? 'Marcar como não comprado' : 'Marcar como comprado'}
+                            >
+                              {isPurchased && <CheckCircle2 className="w-4 h-4" />}
+                            </button>
+                            <div className="flex-1">
+                              <div className={`font-medium ${isPurchased ? 'line-through text-muted-foreground' : ''}`}>
+                                {item.name || item.Name}
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Badge variant="outline">{item.category || item.Category}</Badge>
+                                {isPurchased && purchasedAt && (
+                                  <span className="text-xs text-emerald-600">
+                                    Comprado em {new Date(purchasedAt).toLocaleDateString('pt-PT')}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => setEditingItem({ ...item })}
+                              size="sm"
+                              variant="ghost"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              onClick={() => deleteShoppingItem(item.id || item.Id)}
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => setEditingItem({ ...item })}
-                            size="sm"
-                            variant="ghost"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            onClick={() => deleteShoppingItem(item.id)}
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-muted-foreground">Não há itens na lista</p>

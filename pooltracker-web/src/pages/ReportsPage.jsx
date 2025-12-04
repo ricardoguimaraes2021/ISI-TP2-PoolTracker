@@ -45,8 +45,22 @@ const ReportsPage = () => {
           const chartData = dataArray.map(item => {
             const dateValue = item.date || item.Date || '';
             const visitorsValue = item.visitors ?? item.Visitors ?? 0;
-            // Format date if it's a DateOnly string (YYYY-MM-DD)
-            const formattedDate = dateValue ? (dateValue.length === 10 ? dateValue : new Date(dateValue).toLocaleDateString('pt-PT')) : '';
+            
+            // Format date
+            let formattedDate = '';
+            if (dateValue) {
+              // If it's already a string in format YYYY-MM-DD
+              if (typeof dateValue === 'string' && dateValue.length === 10) {
+                formattedDate = dateValue;
+              } else {
+                try {
+                  formattedDate = new Date(dateValue).toLocaleDateString('pt-PT');
+                } catch (e) {
+                  formattedDate = dateValue.toString();
+                }
+              }
+            }
+
             return {
               date: formattedDate,
               visitors: visitorsValue
