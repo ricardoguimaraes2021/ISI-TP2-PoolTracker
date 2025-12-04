@@ -732,12 +732,3 @@ az webapp deployment source config-zip --resource-group PoolTrackerRG --name poo
 <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
 ```
 
----
-
-## 🚀 Próximos Passos Imediatos
-
-1. **Criar estrutura de projetos** (Fase 1)
-2. **Configurar Entity Framework** e criar migrations
-3. **Começar implementação dos controllers** (Fase 2)
-
-Deseja que comece a implementação? Posso começar pela Fase 1 (Fundação) criando a estrutura de projetos e configurando o Entity Framework Core.
