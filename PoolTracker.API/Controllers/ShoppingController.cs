@@ -109,6 +109,30 @@ public class ShoppingController : ControllerBase
     }
 
     /// <summary>
+    /// Alternar estado de comprado de um item
+    /// </summary>
+    /// <remarks>
+    /// Alterna o estado de comprado de um item da lista de compras.
+    /// Se o item estiver marcado como não comprado, passa a comprado e vice-versa.
+    /// Requer autenticação JWT.
+    /// </remarks>
+    /// <param name="id">ID do item</param>
+    /// <returns>Item atualizado</returns>
+    /// <response code="200">Estado alterado com sucesso</response>
+    /// <response code="401">Não autenticado</response>
+    /// <response code="404">Item não encontrado</response>
+    [HttpPatch("{id}/toggle-purchased")]
+    [ProducesResponseType(typeof(ShoppingItemDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ShoppingItemDto>> TogglePurchased(int id)
+    {
+        var item = await _shoppingService.TogglePurchasedAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    /// <summary>
     /// Remover item da lista de compras
     /// </summary>
     /// <remarks>

@@ -9,6 +9,7 @@ public interface IShoppingService
     Task<ShoppingItemDto?> GetItemByIdAsync(int id);
     Task<ShoppingItemDto> CreateItemAsync(CreateShoppingItemRequest request);
     Task<ShoppingItemDto?> UpdateItemAsync(int id, UpdateShoppingItemRequest request);
+    Task<ShoppingItemDto?> TogglePurchasedAsync(int id);
     Task<bool> DeleteItemAsync(int id);
 }
 

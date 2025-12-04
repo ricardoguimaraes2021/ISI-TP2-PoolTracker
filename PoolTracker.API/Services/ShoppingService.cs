@@ -27,7 +27,8 @@ public class ShoppingService : IShoppingService
         }
 
         var items = await query
-            .OrderByDescending(item => item.CreatedAt)
+            .OrderBy(item => item.IsPurchased) // Itens não comprados primeiro
+            .ThenByDescending(item => item.CreatedAt)
             .ToListAsync();
 
         return items.Select(item => new ShoppingItemDto
@@ -35,6 +36,8 @@ public class ShoppingService : IShoppingService
             Id = item.Id,
             Name = item.Name,
             Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         }).ToList();
@@ -50,6 +53,8 @@ public class ShoppingService : IShoppingService
             Id = item.Id,
             Name = item.Name,
             Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };
@@ -60,7 +65,8 @@ public class ShoppingService : IShoppingService
         var item = new ShoppingItem
         {
             Name = request.Name,
-            Category = request.Category
+            Category = request.Category,
+            IsPurchased = false
         };
 
         await _repository.AddAsync(item);
@@ -70,6 +76,8 @@ public class ShoppingService : IShoppingService
             Id = item.Id,
             Name = item.Name,
             Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };
@@ -90,6 +98,12 @@ public class ShoppingService : IShoppingService
             item.Category = request.Category.Value;
         }
 
+        if (request.IsPurchased.HasValue)
+        {
+            item.IsPurchased = request.IsPurchased.Value;
+            item.PurchasedAt = request.IsPurchased.Value ? DateTime.UtcNow : null;
+        }
+
         item.UpdatedAt = DateTime.UtcNow;
         await _repository.UpdateAsync(item);
 
@@ -98,6 +112,31 @@ public class ShoppingService : IShoppingService
             Id = item.Id,
             Name = item.Name,
             Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
+            CreatedAt = item.CreatedAt,
+            UpdatedAt = item.UpdatedAt
+        };
+    }
+
+    public async Task<ShoppingItemDto?> TogglePurchasedAsync(int id)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item == null) return null;
+
+        item.IsPurchased = !item.IsPurchased;
+        item.PurchasedAt = item.IsPurchased ? DateTime.UtcNow : null;
+        item.UpdatedAt = DateTime.UtcNow;
+        
+        await _repository.UpdateAsync(item);
+
+        return new ShoppingItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
             CreatedAt = item.CreatedAt,
             UpdatedAt = item.UpdatedAt
         };
