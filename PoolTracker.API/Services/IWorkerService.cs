@@ -16,5 +16,7 @@ public interface IWorkerService
     Task DeactivateAllWorkersAsync();
     Task<ActiveWorkersResponse> GetActiveWorkersAsync();
     Task<Dictionary<string, int>> GetActiveWorkersCountAsync();
+    Task<List<ShiftStatsDto>> GetShiftStatsAsync(DateTime startDate, DateTime endDate);
+    Task<List<WorkerShiftDto>> GetWorkerShiftsAsync(string workerId, DateTime startDate, DateTime endDate);
 }
 

@@ -39,3 +39,24 @@ public class ActiveWorkersResponse
     public List<WorkerDto> Workers { get; set; } = new();
 }
 
+public class ShiftStatsDto
+{
+    public string WorkerId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public int Manha { get; set; }
+    public int Tarde { get; set; }
+    public int Total { get; set; }
+}
+
+public class WorkerShiftDto
+{
+    public int Id { get; set; }
+    public string WorkerId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public string? ShiftType { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime? EndTime { get; set; }
+}
+

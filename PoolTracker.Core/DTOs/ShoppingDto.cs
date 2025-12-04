@@ -17,3 +17,9 @@ public class CreateShoppingItemRequest
     public ShoppingCategory Category { get; set; }
 }
 
+public class UpdateShoppingItemRequest
+{
+    public string? Name { get; set; }
+    public ShoppingCategory? Category { get; set; }
+}
+
