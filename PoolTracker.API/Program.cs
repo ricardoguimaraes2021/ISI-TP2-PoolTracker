@@ -111,15 +111,20 @@ public partial class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline
-        if (app.Environment.IsDevelopment())
+        // Swagger disponível em desenvolvimento e produção para facilitar testes
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "PoolTracker API v1");
-                options.RoutePrefix = "swagger";
-            });
-        }
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "PoolTracker API v1");
+            options.RoutePrefix = "swagger";
+            options.DocumentTitle = "PoolTracker API Documentation";
+            options.DefaultModelsExpandDepth(-1); // Esconder modelos por padrão
+            options.DisplayRequestDuration();
+            options.EnableDeepLinking();
+            options.EnableFilter();
+            options.ShowExtensions();
+            options.EnableValidator();
+        });
 
         // app.UseHttpsRedirection(); // Comentado para permitir chamadas HTTP em desenvolvimento
         app.UseCors("AllowAll");
