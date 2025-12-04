@@ -52,7 +52,9 @@ API completa para gestão de piscina municipal. Sistema desenvolvido no âmbito 
 ### Lista de Compras (`/api/shopping`)
 - CRUD completo de itens
 - Filtros por categoria (Bar, Limpeza, Qualidade)
-- Atualização de itens
+- Marcar itens como comprados/não comprados (`PATCH /api/shopping/{id}/toggle-purchased`)
+- Ordenação automática (itens não comprados primeiro)
+- Registo de data de compra
 
 ### Meteorologia (`/api/weather`)
 - Integração com Open-Meteo
@@ -139,10 +141,9 @@ Para obter um token, use o endpoint POST /api/auth/login com o PIN de administra
         }
 
         // Ordenar endpoints por nome do controller
-        options.SortKeyBy(apiDesc => apiDesc.GroupName ?? apiDesc.ActionDescriptor.RouteValues["controller"] ?? "Default");
+        options.OrderActionsBy(apiDesc => apiDesc.GroupName ?? apiDesc.ActionDescriptor.RouteValues["controller"] ?? "Default");
 
         // Configurações adicionais
-        options.EnableAnnotations();
         options.UseInlineDefinitionsForEnums();
         
         // Ignorar propriedades obsoletas
