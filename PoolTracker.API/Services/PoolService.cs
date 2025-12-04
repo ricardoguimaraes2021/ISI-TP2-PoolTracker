@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using PoolTracker.Core.DTOs;
 using PoolTracker.Core.Entities;
@@ -165,14 +166,30 @@ public class PoolService : IPoolService
         // Se está a fechar a piscina, desativar todos os trabalhadores e gerar relatório
         if (wasOpen && !isOpen)
         {
-            if (_workerService != null)
+            try
             {
-                await _workerService.DeactivateAllWorkersAsync();
+                if (_workerService != null)
+                {
+                    await _workerService.DeactivateAllWorkersAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the operation
+                Console.WriteLine($"Error deactivating workers: {ex.Message}");
             }
             
-            if (_reportService != null)
+            try
             {
-                await _reportService.GenerateDailyReportAsync(DateTime.UtcNow);
+                if (_reportService != null)
+                {
+                    await _reportService.GenerateDailyReportAsync(DateTime.UtcNow);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the operation
+                Console.WriteLine($"Error generating report: {ex.Message}");
             }
         }
 

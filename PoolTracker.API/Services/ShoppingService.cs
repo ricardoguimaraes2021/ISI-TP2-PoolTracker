@@ -75,6 +75,34 @@ public class ShoppingService : IShoppingService
         };
     }
 
+    public async Task<ShoppingItemDto?> UpdateItemAsync(int id, UpdateShoppingItemRequest request)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item == null) return null;
+
+        if (request.Name != null)
+        {
+            item.Name = request.Name;
+        }
+
+        if (request.Category.HasValue)
+        {
+            item.Category = request.Category.Value;
+        }
+
+        item.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(item);
+
+        return new ShoppingItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Category = item.Category.ToString(),
+            CreatedAt = item.CreatedAt,
+            UpdatedAt = item.UpdatedAt
+        };
+    }
+
     public async Task<bool> DeleteItemAsync(int id)
     {
         var item = await _repository.GetByIdAsync(id);

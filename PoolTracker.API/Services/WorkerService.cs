@@ -278,5 +278,63 @@ public class WorkerService : IWorkerService
 
         return counts;
     }
+
+    public async Task<List<ShiftStatsDto>> GetShiftStatsAsync(DateTime startDate, DateTime endDate)
+    {
+        var stats = await _context.ActiveWorkers
+            .Include(aw => aw.Worker)
+            .Where(aw => aw.StartTime.Date >= startDate.Date && 
+                        aw.StartTime.Date <= endDate.Date &&
+                        aw.EndTime != null)
+            .GroupBy(aw => new { aw.WorkerId, aw.Worker!.Name, aw.Worker.Role, aw.ShiftType })
+            .Select(g => new
+            {
+                g.Key.WorkerId,
+                g.Key.Name,
+                g.Key.Role,
+                g.Key.ShiftType,
+                Count = g.Count()
+            })
+            .ToListAsync();
+
+        var result = stats
+            .GroupBy(s => s.WorkerId)
+            .Select(g => new ShiftStatsDto
+            {
+                WorkerId = g.Key,
+                Name = g.First().Name,
+                Role = g.First().Role.ToString(),
+                Manha = g.Where(s => s.ShiftType == ShiftType.Manha).Sum(s => s.Count),
+                Tarde = g.Where(s => s.ShiftType == ShiftType.Tarde).Sum(s => s.Count),
+                Total = g.Sum(s => s.Count)
+            })
+            .OrderBy(s => s.Name)
+            .ToList();
+
+        return result;
+    }
+
+    public async Task<List<WorkerShiftDto>> GetWorkerShiftsAsync(string workerId, DateTime startDate, DateTime endDate)
+    {
+        var shifts = await _context.ActiveWorkers
+            .Include(aw => aw.Worker)
+            .Where(aw => aw.WorkerId == workerId &&
+                        aw.StartTime.Date >= startDate.Date &&
+                        aw.StartTime.Date <= endDate.Date &&
+                        aw.EndTime != null)
+            .OrderByDescending(aw => aw.StartTime)
+            .ToListAsync();
+
+        return shifts.Select(aw => new WorkerShiftDto
+        {
+            Id = aw.Id,
+            WorkerId = aw.WorkerId,
+            Name = aw.Worker?.Name ?? "",
+            Role = aw.Role.ToString(),
+            ShiftType = aw.ShiftType?.ToString(),
+            StartTime = aw.StartTime,
+            EndTime = aw.EndTime
+        }).ToList();
+    }
 }
 
