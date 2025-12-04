@@ -281,17 +281,20 @@ POST   /api/auth/login               - Login (Público)
 
 ### Cobertura de Testes
 
-- **Testes Unitários**: 30 testes (Services)
-  - PoolServiceTests: 17 testes
-  - WorkerServiceTests: 9 testes
-  - WaterQualityServiceTests: 4 testes
-- **Testes de Integração**: 7 testes (Controllers)
-  - PoolControllerTests: 4 testes
-  - AuthControllerTests: 3 testes
-- **Testes End-to-End**: 5 testes (API completa com JWT)
-  - PoolApiTests: 5 testes
-- **Total**: 42 testes implementados
-- **Code Coverage**: Objetivo ≥ 70% (pendente configuração)
+**Total: 42 testes unitários (todos a passar)**
+
+- **PoolServiceTests**: 14 testes (entrada/saída, capacidade, estado, reset)
+- **WorkerServiceTests**: 10 testes (CRUD, turnos, ativação/desativação)
+- **WaterQualityServiceTests**: 5 testes (medições, histórico, última medição)
+- **ShoppingServiceTests**: 13 testes (CRUD, toggle purchased, ordenação)
+
+**Testes de Integração**:
+- BaseIntegrationTest com seed data
+- AuthControllerTests
+- PoolControllerTests
+
+**Testes End-to-End**:
+- PoolApiTests com autenticação JWT
 
 ### Ferramentas
 
@@ -326,76 +329,16 @@ public async Task Enter_ShouldIncrementCount_WhenPoolNotFull()
 
 | Documento | Descrição | Localização |
 |-----------|-----------|-------------|
-| **API Documentation** | Documentação completa dos endpoints REST e SOAP | [DOCUMENTATION/API_Documentation.md](./DOCUMENTATION/API_Documentation.md) |
-| **Installation Guide** | Guia detalhado de instalação e configuração | [DOCUMENTATION/Installation_Guide.md](./DOCUMENTATION/Installation_Guide.md) |
 | **PRD** | Product Requirements Document completo | [DOCUMENTATION/PRD.md](./DOCUMENTATION/PRD.md) |
 | **Implementation Plan** | Plano de implementação detalhado (10 fases) | [DOCUMENTATION/ImplementationPlan.md](./DOCUMENTATION/ImplementationPlan.md) |
-| **Analysis Report** | Análise de requisitos vs implementação | [DOCUMENTATION/AnalysisReport.md](./DOCUMENTATION/AnalysisReport.md) |
-| **PHP vs .NET Comparison** | Comparação entre versões do projeto | [DOCUMENTATION/PHPvsDotNET_Comparison.md](./DOCUMENTATION/PHPvsDotNET_Comparison.md) |
-| **Task List** | Lista de tarefas por fase | [DOCUMENTATION/TaskList.md](./DOCUMENTATION/TaskList.md) |
+| **Relatório TP2** | Relatório final do trabalho prático | [DOCUMENTATION/Relatorio_TP2.md](./DOCUMENTATION/Relatorio_TP2.md) |
+| **Task List** | Lista de tarefas e progresso | [DOCUMENTATION/TaskList.md](./DOCUMENTATION/TaskList.md) |
 | **Enunciado** | Enunciado oficial do TP2 | [ENUNCIADO/ESI-ISI-2025-26-TP2-enunciado.pdf](./ENUNCIADO/ESI-ISI-2025-26-TP2-enunciado.pdf) |
 
 ### Swagger/OpenAPI
 
-- **UI**: `http://localhost:5292/swagger` (desenvolvimento)
-- **JSON**: `http://localhost:5292/swagger/v1/swagger.json`
 - **Descrição**: Documentação interativa de todos os 40+ endpoints REST
-- **Documentação Completa**: Ver [API_Documentation.md](./DOCUMENTATION/API_Documentation.md) para detalhes de todos os endpoints REST e SOAP
-
----
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-
-- .NET 8.0 SDK
-- SQL Server / PostgreSQL
-- Node.js 18+
-- Git
-
-### Instalação Rápida
-
-Para instruções detalhadas, consulte o [Guia de Instalação](./DOCUMENTATION/Installation_Guide.md).
-
-```bash
-# 1. Clonar o repositório
-git clone https://github.com/ricardoguimaraes2021/ISI-TP2-PoolTracker.git
-cd ISI-TP2-PoolTracker
-
-# 2. Configurar base de dados (editar appsettings.json)
-# 3. Aplicar migrations
-cd PoolTracker.API
-dotnet ef database update
-
-# 4. Executar API RESTful
-dotnet run
-# API disponível em http://localhost:5292
-
-# 5. Executar Serviços SOAP (em outro terminal)
-cd ../PoolTracker.SOAP
-dotnet run
-# SOAP disponível em http://localhost:5000
-
-# 6. Executar Frontend (em outro terminal)
-cd ../pooltracker-web
-npm install
-npm run dev
-# Frontend disponível em http://localhost:5173
-```
-
-### Acesso
-
-- **Swagger UI**: http://localhost:5292/swagger
-- **Frontend Público**: http://localhost:5173/
-- **Login Admin**: http://localhost:5173/admin/login (PIN: 1234)
-- **WSDL SOAP**: http://localhost:5000/soap/PoolDataService?wsdl
-
-### Testes
-
-```bash
-cd PoolTracker.Tests
-dotnet test
-```
+- **Acesso local**: `http://localhost:5292/swagger`
 
 ---
 

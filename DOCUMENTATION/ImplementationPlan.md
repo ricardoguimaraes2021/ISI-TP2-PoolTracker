@@ -8,15 +8,15 @@ Expandir o projeto **PoolTracker .NET** com todas as funcionalidades da versão 
 
 ## ✅ Requisitos do Enunciado (Checklist)
 
-- [ ] **Qualidade dos serviços desenvolvidos**
-- [ ] **Desenvolveu serviços SOAP (para Data Layer)**
-- [ ] **Desenvolveu serviços RESTful (POST, GET, PUT, DELETE)**
-- [ ] **Utilizou serviços web externos**
-- [ ] **Documentou devidamente a API disponibilizada (Swagger/OpenAPI)**
-- [ ] **Especificou um conjunto de testes para a API desenvolvida**
-- [ ] **Publicou Repositório de Dados na Cloud**
-- [ ] **Explorou aplicação de segurança nos serviços (OAuth/JWT)**
-- [ ] **Publicou Serviços na Cloud**
+- [x] **Qualidade dos serviços desenvolvidos** - Arquitetura SOA, Repository Pattern, DI, Clean Code
+- [x] **Desenvolveu serviços SOAP (para Data Layer)** - 4 serviços SOAP implementados
+- [x] **Desenvolveu serviços RESTful (POST, GET, PUT, DELETE)** - 40+ endpoints REST
+- [x] **Utilizou serviços web externos** - Integração com Open-Meteo API
+- [x] **Documentou devidamente a API disponibilizada (Swagger/OpenAPI)** - Swagger UI completo com XML comments
+- [x] **Especificou um conjunto de testes para a API desenvolvida** - 42 testes automatizados (todos a passar)
+- [ ] **Publicou Repositório de Dados na Cloud** - Pendente deploy
+- [x] **Explorou aplicação de segurança nos serviços (OAuth/JWT)** - JWT Bearer Authentication
+- [ ] **Publicou Serviços na Cloud** - Pendente deploy
 
 ---
 
@@ -605,20 +605,20 @@ az webapp deployment source config-zip --resource-group PoolTrackerRG --name poo
 **Tempo estimado**: 10-12 horas
 **Status**: ✅ COMPLETA
 
-- [x] Configurar projeto de testes (xUnit)
-- [x] Testes unitários de Services (30 testes implementados)
-  - PoolServiceTests: 17 testes
-  - WorkerServiceTests: 9 testes
-  - WaterQualityServiceTests: 4 testes
-- [x] Testes de integração de Controllers (7 testes implementados)
-  - PoolControllerTests: 4 testes
-  - AuthControllerTests: 3 testes
-- [x] Testes de API end-to-end (5 testes implementados)
-  - PoolApiTests: 5 testes com autenticação JWT
-- [x] Testes de autenticação (incluídos nos testes de integração)
-- [ ] Configurar code coverage (pendente)
+- [x] Configurar projeto de testes (xUnit + FluentAssertions + Moq)
+- [x] **42 testes unitários implementados e a passar**:
+  - PoolServiceTests: 14 testes
+  - WorkerServiceTests: 10 testes
+  - WaterQualityServiceTests: 5 testes
+  - ShoppingServiceTests: 13 testes (NOVO - com toggle purchased)
+- [x] Testes de integração configurados:
+  - BaseIntegrationTest com seed data
+  - AuthControllerTests
+  - PoolControllerTests
+- [x] Testes de API end-to-end:
+  - PoolApiTests com autenticação JWT
 
-**Total de testes implementados**: 42 testes
+**Total de testes implementados**: 42 testes (todos a passar)
 
 ### Fase 8: Frontend Expandido (Semana 4)
 **Tempo estimado**: 8-10 horas

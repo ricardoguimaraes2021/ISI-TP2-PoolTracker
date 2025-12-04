@@ -405,12 +405,15 @@ A API RESTful fornece 40+ endpoints organizados em 9 controllers, cobrindo todas
 | GET | `/api/statistics/workers` | Turnos por trabalhador | JWT |
 | GET | `/api/statistics/occupancy` | Ocupação média | JWT |
 
-### 6.2.7 Shopping List (3 endpoints)
+### 6.2.7 Shopping List (6 endpoints)
 
 | Método | Endpoint | Descrição | Autenticação |
 |--------|----------|-----------|--------------|
 | GET | `/api/shopping` | Listar itens | JWT |
+| GET | `/api/shopping/{id}` | Obter item por ID | JWT |
 | POST | `/api/shopping` | Adicionar item | JWT |
+| PUT | `/api/shopping/{id}` | Atualizar item | JWT |
+| PATCH | `/api/shopping/{id}/toggle-purchased` | Alternar estado comprado | JWT |
 | DELETE | `/api/shopping/{id}` | Remover item | JWT |
 
 ### 6.2.8 Weather (1 endpoint)
@@ -636,6 +639,10 @@ Lista de compras.
 | Id | INT | Chave primária |
 | Name | NVARCHAR(255) | Nome do item |
 | Category | NVARCHAR(20) | Categoria (bar, limpeza, qualidade) |
+| IsPurchased | BIT | Estado de comprado |
+| PurchasedAt | DATETIME2 | Data/hora da compra (nullable) |
+| CreatedAt | DATETIME2 | Data de criação |
+| UpdatedAt | DATETIME2 | Data de atualização |
 
 ## 9.2 Relacionamentos
 
@@ -672,25 +679,24 @@ O projeto implementa uma estratégia de testes em múltiplas camadas:
 
 ## 10.3 Cobertura de Testes
 
-**Objetivo**: ≥ 70% de code coverage
+**Total de testes implementados**: **42 testes** (todos a passar)
 
-### 10.3.1 Testes Unitários (20+ testes)
+### 10.3.1 Testes Unitários (42 testes)
 
-- Testes de serviços (PoolService, WorkerService, etc.)
-- Testes de repositórios
-- Testes de validação
+- **PoolServiceTests** (14 testes): Entrada/saída, capacidade, estado, reset
+- **WorkerServiceTests** (10 testes): CRUD, turnos, ativação/desativação
+- **WaterQualityServiceTests** (5 testes): Medições, histórico, última medição
+- **ShoppingServiceTests** (13 testes): CRUD, toggle purchased, ordenação
 
-### 10.3.2 Testes de Integração (15+ testes)
+### 10.3.2 Testes de Integração
 
-- Testes de controllers
-- Testes de autenticação
-- Testes de base de dados
+- **BaseIntegrationTest**: Configuração de servidor de teste com seed data
+- **AuthControllerTests**: Login, validação de PIN, refresh tokens
+- **PoolControllerTests**: Operações CRUD sobre estado da piscina
 
-### 10.3.3 Testes End-to-End (10+ testes)
+### 10.3.3 Testes End-to-End
 
-- Fluxos completos de operações
-- Testes de performance
-- Testes de segurança
+- **PoolApiTests**: Fluxos completos com autenticação JWT
 
 ## 10.4 Exemplo de Teste
 
