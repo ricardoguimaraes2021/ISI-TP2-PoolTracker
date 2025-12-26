@@ -28,19 +28,20 @@
 # Índice
 
 1. [Introdução](#1-introdução)
-2. [Objetivos](#2-objetivos)
-3. [Arquitetura do Sistema](#3-arquitetura-do-sistema)
-4. [Implementação Técnica](#4-implementação-técnica)
-5. [Serviços SOAP](#5-serviços-soap)
-6. [Serviços RESTful](#6-serviços-restful)
-7. [Segurança e Autenticação](#7-segurança-e-autenticação)
-8. [Integração com Serviços Externos](#8-integração-com-serviços-externos)
-9. [Base de Dados](#9-base-de-dados)
-10. [Testes](#10-testes)
-11. [Documentação](#11-documentação)
-12. [Deployment](#12-deployment)
-13. [Conclusões](#13-conclusões)
-14. [Referências](#14-referências)
+2. [Glossário de Termos Técnicos](#glossário-de-termos-técnicos)
+3. [Objetivos](#2-objetivos)
+4. [Arquitetura do Sistema](#3-arquitetura-do-sistema)
+5. [Implementação Técnica](#4-implementação-técnica)
+6. [Serviços SOAP](#5-serviços-soap)
+7. [Serviços RESTful](#6-serviços-restful)
+8. [Segurança e Autenticação](#7-segurança-e-autenticação)
+9. [Integração com Serviços Externos](#8-integração-com-serviços-externos)
+10. [Base de Dados](#9-base-de-dados)
+11. [Testes](#10-testes)
+12. [Documentação](#11-documentação)
+13. [Deployment](#12-deployment)
+14. [Conclusões](#13-conclusões)
+15. [Referências](#14-referências)
 
 ---
 
@@ -50,7 +51,9 @@
 
 O presente trabalho foi desenvolvido no âmbito da unidade curricular de **Integração de Sistemas de Informação (ISI)**, com o objetivo de demonstrar competências práticas no desenvolvimento de sistemas baseados em **Arquitetura Orientada a Serviços (SOA)**.
 
-O projeto **PoolTracker** consiste num sistema completo de gestão para piscinas municipais, desenvolvido utilizando tecnologias modernas e seguindo as melhores práticas de engenharia de software.
+**Nota para leitores não técnicos**: A Arquitetura Orientada a Serviços (SOA) é uma forma de organizar sistemas informáticos onde diferentes funcionalidades são disponibilizadas como "serviços" independentes que podem comunicar entre si. É como ter vários departamentos numa empresa, cada um com a sua função específica, mas todos a trabalhar em conjunto para um objetivo comum.
+
+O projeto **PoolTracker** consiste num sistema completo de gestão para piscinas municipais, desenvolvido utilizando tecnologias modernas e seguindo as melhores práticas de engenharia de software. Este sistema permite gerir, de forma integrada e automatizada, todas as operações diárias de uma piscina municipal, desde o controlo de lotação até à geração de relatórios operacionais.
 
 ## 1.2 Problema Identificado
 
@@ -65,15 +68,21 @@ As piscinas municipais enfrentam diversos desafios na gestão operacional diári
 
 ## 1.3 Solução Proposta
 
-O PoolTracker foi desenvolvido como um sistema baseado em **Arquitetura Orientada a Serviços (SOA)**, integrando:
+O PoolTracker foi desenvolvido como um sistema baseado em **Arquitetura Orientada a Serviços (SOA)**, integrando múltiplas tecnologias modernas:
 
-- **API RESTful** para operações CRUD e integração com aplicações terceiras
-- **Serviços SOAP** para acesso à camada de dados (Data Layer)
-- **Frontend React** moderno e responsivo
-- **Autenticação JWT** para segurança
-- **Integração com APIs externas** (meteorologia Open-Meteo)
-- **Base de dados SQL** persistente e normalizada
-- **Deployment em Cloud** (Azure/Railway/Render)
+- **API RESTful**: Uma interface de programação que permite a outras aplicações comunicarem com o sistema. Pode ser comparada a um "menu" de operações disponíveis (como consultar lotação, registar entrada de pessoas, etc.). O termo "RESTful" refere-se a um estilo de comunicação padronizado e amplamente utilizado na internet.
+
+- **Serviços SOAP**: Outro tipo de interface de comunicação, mais tradicional e baseada em XML (um formato de dados estruturado). Estes serviços são especialmente úteis para integração com sistemas mais antigos ou que requerem maior formalidade na comunicação.
+
+- **Frontend React**: A parte do sistema que os utilizadores veem e com a qual interagem. É a "cara" do sistema, desenvolvida com tecnologias web modernas que garantem uma experiência fluida e responsiva (adaptável a diferentes tamanhos de ecrã).
+
+- **Autenticação JWT**: Um sistema de segurança que garante que apenas utilizadores autorizados podem aceder a funcionalidades sensíveis. Funciona através de "tokens" (credenciais digitais) que comprovam a identidade do utilizador.
+
+- **Integração com APIs externas**: O sistema comunica com serviços externos, como o serviço de meteorologia Open-Meteo, para enriquecer a informação disponível (por exemplo, mostrar a temperatura atual).
+
+- **Base de dados SQL**: O "armazém" onde toda a informação é guardada de forma organizada e estruturada. Permite guardar dados como o número de pessoas na piscina, registos de trabalhadores, medições de qualidade da água, etc.
+
+- **Deployment em Cloud**: O sistema está alojado em servidores na "nuvem" (cloud), o que significa que está acessível através da internet, sem necessidade de instalação local. Isto permite acesso de qualquer lugar e facilita a manutenção.
 
 ---
 
@@ -120,7 +129,9 @@ Conforme definido no enunciado do TP2 de ISI, os objetivos pedagógicos são:
 
 ## 3.1 Visão Geral
 
-O sistema PoolTracker segue uma arquitetura em camadas (Layered Architecture), separando responsabilidades e facilitando manutenção e testes:
+O sistema PoolTracker segue uma arquitetura em camadas (Layered Architecture), que pode ser comparada a uma organização hierárquica onde cada "camada" tem responsabilidades específicas. Esta organização facilita a manutenção, testes e evolução do sistema, pois cada parte pode ser modificada sem afetar as outras.
+
+**Explicação simples**: Imagine uma empresa com diferentes departamentos - o departamento de atendimento ao cliente (Frontend), o departamento de gestão (API RESTful), o departamento de arquivo (Base de Dados), etc. Cada um tem a sua função, mas todos trabalham em conjunto.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -466,6 +477,14 @@ A API segue as convenções REST:
 
 O sistema utiliza **JSON Web Tokens (JWT)** para autenticação stateless, seguindo o padrão Bearer Token.
 
+**Explicação para leitores não técnicos**: 
+
+- **JWT (JSON Web Token)**: É como um "passe de acesso" digital que comprova que um utilizador está autorizado. Quando um utilizador faz login, recebe este "passe" e deve apresentá-lo sempre que quiser realizar ações que requerem autorização (como registar a entrada de uma pessoa na piscina).
+
+- **Stateless**: Significa que o servidor não precisa de "lembrar" quem está ligado. Cada pedido traz consigo toda a informação necessária (o token JWT), o que torna o sistema mais eficiente e escalável.
+
+- **Bearer Token**: É o nome técnico para o tipo de credencial usado. "Bearer" significa "portador" - quem tem o token, tem acesso.
+
 ### 7.2 Fluxo de Autenticação
 
 1. **Login**: Cliente envia PIN para `/api/auth/login`
@@ -674,11 +693,15 @@ Lista de compras.
 
 ## 10.1 Estratégia de Testes
 
-O projeto implementa uma estratégia de testes em múltiplas camadas:
+O projeto implementa uma estratégia de testes em múltiplas camadas, garantindo que o sistema funciona corretamente em diferentes níveis:
 
-1. **Testes Unitários**: Testam serviços isoladamente com mocks
-2. **Testes de Integração**: Testam controllers com base de dados em memória
-3. **Testes End-to-End**: Testam fluxos completos da API
+1. **Testes Unitários**: Testam cada componente do sistema isoladamente, como se estivesse a testar uma peça de um motor sem o motor completo. Utilizam "mocks" (simulações) de dependências para garantir que apenas o componente em teste está a ser avaliado.
+
+2. **Testes de Integração**: Testam como diferentes componentes trabalham em conjunto, verificando se a comunicação entre eles funciona corretamente. Utilizam uma base de dados em memória (temporária) para não afetar dados reais.
+
+3. **Testes End-to-End**: Testam fluxos completos do sistema, desde o início até ao fim, simulando o que um utilizador real faria. É como testar todo o processo de registar uma entrada na piscina, desde o clique no botão até à atualização da base de dados.
+
+**Porquê testar?** Os testes automatizados garantem que o sistema funciona corretamente e que alterações futuras não quebram funcionalidades existentes. É como ter um "controlo de qualidade" automático.
 
 ## 10.2 Ferramentas
 
@@ -837,11 +860,15 @@ O projeto inclui um README.md completo com:
 
 ## 12.1 Contexto e Objetivos
 
-O deployment na cloud é um requisito obrigatório do TP2, permitindo:
-- Demonstração de competências em PaaS (Platform as a Service)
-- Disponibilização pública dos serviços desenvolvidos
-- Validação da arquitetura em ambiente de produção
-- Acesso remoto aos serviços SOAP e RESTful
+O deployment (publicação) na cloud é um requisito obrigatório do TP2, permitindo:
+
+- **Demonstração de competências em PaaS (Platform as a Service)**: PaaS é um modelo de cloud computing onde uma plataforma fornece o ambiente necessário para executar aplicações, sem necessidade de gerir servidores, sistemas operativos, etc. É como alugar um espaço num centro comercial - não precisa de construir o edifício, apenas de montar a sua loja.
+
+- **Disponibilização pública dos serviços desenvolvidos**: Tornar o sistema acessível através da internet, permitindo que qualquer pessoa (com as devidas permissões) possa utilizá-lo, sem necessidade de instalação local.
+
+- **Validação da arquitetura em ambiente de produção**: Testar o sistema num ambiente real, semelhante ao que seria usado por utilizadores finais, garantindo que funciona corretamente em condições reais de utilização.
+
+- **Acesso remoto aos serviços SOAP e RESTful**: Permitir que outros sistemas ou aplicações possam comunicar com os serviços desenvolvidos através da internet, facilitando a integração com outros sistemas.
 
 ## 12.2 Plataformas Cloud Consideradas
 
@@ -1286,15 +1313,21 @@ az sql server firewall-rule create \
 
 ## 13.1 Objetivos Alcançados
 
-O projeto PoolTracker demonstra com sucesso:
+O projeto PoolTracker demonstra com sucesso a implementação de um sistema completo e funcional que cumpre todos os objetivos estabelecidos:
 
-✅ **Arquitetura SOA**: Separação clara entre serviços RESTful e SOAP  
-✅ **Interoperabilidade**: Comunicação SOAP (XML) e REST (JSON)  
-✅ **Segurança**: Implementação de JWT Bearer Authentication  
-✅ **Qualidade**: Testes automatizados e code coverage  
-✅ **Documentação**: Swagger completo e documentação de código  
-✅ **Cloud**: Deployment em plataformas cloud  
-✅ **Integração**: Consumo de APIs externas (Open-Meteo)  
+✅ **Arquitetura SOA**: O sistema foi organizado seguindo os princípios de Arquitetura Orientada a Serviços, com separação clara entre diferentes tipos de serviços (RESTful e SOAP), permitindo flexibilidade e manutenibilidade.
+
+✅ **Interoperabilidade**: O sistema suporta dois protocolos de comunicação diferentes (SOAP com XML e REST com JSON), permitindo integração com uma vasta gama de sistemas, desde os mais modernos até aos mais antigos.
+
+✅ **Segurança**: Foi implementado um sistema robusto de autenticação baseado em tokens JWT, garantindo que apenas utilizadores autorizados podem aceder a funcionalidades sensíveis e que as comunicações são seguras.
+
+✅ **Qualidade**: O sistema foi desenvolvido com foco na qualidade, incluindo uma suite abrangente de testes automatizados (54 testes) que garantem o correto funcionamento de todas as funcionalidades e facilitam a deteção precoce de problemas.
+
+✅ **Documentação**: Toda a API foi completamente documentada através do Swagger/OpenAPI, permitindo que outros programadores compreendam e utilizem facilmente os serviços disponibilizados.
+
+✅ **Cloud**: O sistema foi publicado com sucesso em plataformas cloud (Azure), demonstrando competências em deployment e gestão de infraestrutura na nuvem.
+
+✅ **Integração**: O sistema integra-se com serviços externos (como a API de meteorologia Open-Meteo), demonstrando capacidade de consumir e integrar dados de fontes externas.  
 
 ## 13.2 Requisitos do Enunciado
 
