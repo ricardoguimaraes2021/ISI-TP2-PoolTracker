@@ -1,0 +1,154 @@
+using Microsoft.EntityFrameworkCore;
+using PoolTracker.Core.DTOs;
+using PoolTracker.Core.Entities;
+using PoolTracker.Core.Interfaces;
+using PoolTracker.Infrastructure.Data;
+
+namespace PoolTracker.API.Services;
+
+public class ShoppingService : IShoppingService
+{
+    private readonly IRepository<ShoppingItem> _repository;
+    private readonly PoolTrackerDbContext _context;
+
+    public ShoppingService(IRepository<ShoppingItem> repository, PoolTrackerDbContext context)
+    {
+        _repository = repository;
+        _context = context;
+    }
+
+    public async Task<List<ShoppingItemDto>> GetAllItemsAsync(ShoppingCategory? category = null)
+    {
+        var query = _context.ShoppingList.AsQueryable();
+
+        if (category.HasValue)
+        {
+            query = query.Where(item => item.Category == category.Value);
+        }
+
+        var items = await query
+            .OrderBy(item => item.IsPurchased) // Itens não comprados primeiro
+            .ThenByDescending(item => item.CreatedAt)
+            .ToListAsync();
+
+        return items.Select(item => new ShoppingItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
+            CreatedAt = item.CreatedAt,
+            UpdatedAt = item.UpdatedAt
+        }).ToList();
+    }
+
+    public async Task<ShoppingItemDto?> GetItemByIdAsync(int id)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item == null) return null;
+
+        return new ShoppingItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
+            CreatedAt = item.CreatedAt,
+            UpdatedAt = item.UpdatedAt
+        };
+    }
+
+    public async Task<ShoppingItemDto> CreateItemAsync(CreateShoppingItemRequest request)
+    {
+        var item = new ShoppingItem
+        {
+            Name = request.Name,
+            Category = request.Category,
+            IsPurchased = false
+        };
+
+        await _repository.AddAsync(item);
+
+        return new ShoppingItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
+            CreatedAt = item.CreatedAt,
+            UpdatedAt = item.UpdatedAt
+        };
+    }
+
+    public async Task<ShoppingItemDto?> UpdateItemAsync(int id, UpdateShoppingItemRequest request)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item == null) return null;
+
+        if (request.Name != null)
+        {
+            item.Name = request.Name;
+        }
+
+        if (request.Category.HasValue)
+        {
+            item.Category = request.Category.Value;
+        }
+
+        if (request.IsPurchased.HasValue)
+        {
+            item.IsPurchased = request.IsPurchased.Value;
+            item.PurchasedAt = request.IsPurchased.Value ? DateTime.UtcNow : null;
+        }
+
+        item.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(item);
+
+        return new ShoppingItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
+            CreatedAt = item.CreatedAt,
+            UpdatedAt = item.UpdatedAt
+        };
+    }
+
+    public async Task<ShoppingItemDto?> TogglePurchasedAsync(int id)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item == null) return null;
+
+        item.IsPurchased = !item.IsPurchased;
+        item.PurchasedAt = item.IsPurchased ? DateTime.UtcNow : null;
+        item.UpdatedAt = DateTime.UtcNow;
+        
+        await _repository.UpdateAsync(item);
+
+        return new ShoppingItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Category = item.Category.ToString(),
+            IsPurchased = item.IsPurchased,
+            PurchasedAt = item.PurchasedAt,
+            CreatedAt = item.CreatedAt,
+            UpdatedAt = item.UpdatedAt
+        };
+    }
+
+    public async Task<bool> DeleteItemAsync(int id)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item == null) return false;
+
+        await _repository.DeleteAsync(item);
+        return true;
+    }
+}
+
